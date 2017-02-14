@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">The Movie DB</string>
+    <string name="release_date">Release Date</string>
+    <string name="user_rating">User rating</string>
+    <string name="error_no_connection">Sorry, but it appears that internet connection is not available. You can retry by selecting sorting order from menu.</string>
+    <string name="error_no_results">Ups, The Movie DB returned no results :(</string>
+    <string name="sort_top_rated">Top rated movies</string>
+    <string name="sort_popular">Popular movies</string>
+    <string name="error_key">Make sure to follow instructions from README.md in project directory before building this project, no TMDB key is set so this app won\'t work</string>
+</resources>
