@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
+import com.example.werek.themoviedb.task.AsyncMovieTask;
+import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.MovieDbApi;
 import com.squareup.picasso.Picasso;
 
@@ -20,10 +22,17 @@ import butterknife.ButterKnife;
  * Created by werek on 22.01.2017.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>
+        implements EndlessRecyclerViewScrollListener.LoadMore, AsyncMovieTask.MovieLoaderListener {
     private static final String TAG = MovieAdapter.class.getName();
     private MoviesList mMovieList;
     private MovieDetailsListener mMovieDetails;
+
+
+
+    interface MovieDetailsListener {
+        void onMovieDetails(Movie movie);
+    }
 
     public MovieAdapter(@Nullable MovieDetailsListener movieDetails) {
         mMovieDetails = movieDetails;
@@ -39,10 +48,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.loadMovie(mMovieList.getResults().get(position));
-    }
-
-    interface MovieDetailsListener {
-        void onMovieDetails(Movie movie);
     }
 
     /**
@@ -65,8 +70,44 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         notifyDataSetChanged();
     }
 
+    public MovieAdapter addMovie(Movie movie) {
+        int newPosition = mMovieList.getResults().size();
+        mMovieList.getResults().add(movie);
+        notifyItemInserted(newPosition);
+        return this;
+    }
+
+    public MovieAdapter appendMoviesList(MoviesList moviesList) {
+        mMovieList.setPage(moviesList.getPage());
+        for (Movie movie : moviesList.getResults()) {
+            addMovie(movie);
+        }
+        return this;
+    }
+
     public MoviesList getMovieList() {
         return mMovieList;
+    }
+
+    @Override
+    public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+        Log.d(TAG, "onLoadMore: page("+page+"), totalItemCount("+totalItemsCount+")");
+        String sorting = mMovieList != null ? mMovieList.getType() : null;
+        int nextPage = mMovieList != null ? mMovieList.getPage() + 1 : 1;
+        Log.d(TAG, "onLoadMore: sorting("+sorting+"), nextPage("+nextPage+")");
+        new AsyncMovieTask(this,page).execute(sorting);
+    }
+
+    @Override
+    public void onPreExecute() {
+
+    }
+
+    @Override
+    public void loadedMovies(@Nullable MoviesList moviesList) {
+        if (moviesList != null) {
+            appendMoviesList(moviesList);
+        }
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

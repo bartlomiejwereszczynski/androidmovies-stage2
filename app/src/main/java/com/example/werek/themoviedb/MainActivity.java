@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -19,15 +18,15 @@ import android.widget.TextView;
 
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
-import com.example.werek.themoviedb.util.MovieDbApi;
+import com.example.werek.themoviedb.task.AsyncMovieTask;
+import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.Preferences;
-
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieDetailsListener {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieDetailsListener, AsyncMovieTask.MovieLoaderListener {
+    public static final String TAG = MainActivity.class.getName();
     public static final String MOVIE_EXTRA = BuildConfig.APPLICATION_ID + "movieItem";
     public static final String MOVIES_LIST = BuildConfig.APPLICATION_ID + "moviesList";
     private MovieAdapter mMovieAdapter;
@@ -37,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     TextView mError;
     @BindView(R.id.pb_loading)
     ProgressBar mLoading;
+    private EndlessRecyclerViewScrollListener mEndlessScroll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (sorting == null) {
             sorting = Preferences.getSorting(this);
         }
-        new LoadMoviesTask().execute(sorting);
+        new AsyncMovieTask(this).execute(sorting);
     }
 
     void showError(int stringResource) {
@@ -99,10 +99,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this);
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-
+        mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager,mMovieAdapter);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mMovieAdapter);
+        mRecyclerView.addOnScrollListener(mEndlessScroll);
     }
 
     @Override
@@ -182,78 +183,98 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    class LoadMoviesTask extends AsyncTask<String, Void, MoviesList> {
-        private final String TAG = LoadMoviesTask.class.getName();
+    @Override
+    public void onPreExecute() {
+        showLoading();
+        mMovieAdapter.setMovieList(null);
+        mEndlessScroll.resetState();
+    }
 
-        /**
-         * Runs on the UI thread before {@link #doInBackground}.
-         *
-         * @see #onPostExecute
-         * @see #doInBackground
-         */
-        @Override
-        protected void onPreExecute() {
-            showLoading();
-            mMovieAdapter.setMovieList(null);
-        }
-
-        /**
-         * Override this method to perform a computation on a background thread. The
-         * specified parameters are the parameters passed to {@link #execute}
-         * by the caller of this task.
-         * <p>
-         * This method can call {@link #publishProgress} to publish updates
-         * on the UI thread.
-         *
-         * @param params The parameters of the task.
-         * @return A result, defined by the subclass of this task.
-         * @see #onPreExecute()
-         * @see #onPostExecute
-         * @see #publishProgress
-         */
-        @Override
-        protected MoviesList doInBackground(String... params) {
-            String sorting = params[0];
-            MovieDbApi api = new MovieDbApi();
-            api.setApiKey(BuildConfig.MOVIE_DB_API_KEY);
-            String language = Locale.getDefault().toString();
-            Log.d(TAG, "language used for TMDB: " + language);
-            api.setLanguage(language);
-            MoviesList movies;
-            switch (sorting) {
-                case Preferences.TOP_RATED:
-                    movies = api.topRated();
-                    break;
-                case Preferences.POPULAR:
-                default:
-                    movies = api.popular();
-                    break;
-            }
-            return movies;
-        }
-
-        /**
-         * <p>Runs on the UI thread after {@link #doInBackground}. The
-         * specified result is the value returned by {@link #doInBackground}.</p>
-         * <p>
-         * <p>This method won't be invoked if the task was cancelled.</p>
-         *
-         * @param moviesList The result of the operation computed by {@link #doInBackground}.
-         * @see #onPreExecute
-         * @see #doInBackground
-         * @see #onCancelled(Object)
-         */
-        @Override
-        protected void onPostExecute(MoviesList moviesList) {
-            if (moviesList != null) {
-                Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
-                mMovieAdapter.setMovieList(moviesList);
-                showResults();
-            } else {
-                Log.d(TAG, "got empty result response");
-                int message = isInternetAvailable() ? R.string.error_no_results : R.string.error_no_connection;
-                showError(message);
-            }
+    @Override
+    public void loadedMovies(@Nullable MoviesList moviesList) {
+        if (moviesList != null) {
+            Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
+            mMovieAdapter.setMovieList(moviesList);
+            showResults();
+        } else {
+            Log.d(TAG, "got empty result response");
+            int message = isInternetAvailable() ? R.string.error_no_results : R.string.error_no_connection;
+            showError(message);
         }
     }
+
+//    class LoadMoviesTask extends AsyncTask<String, Void, MoviesList> {
+//        private final String TAG = LoadMoviesTask.class.getName();
+//
+//        /**
+//         * Runs on the UI thread before {@link #doInBackground}.
+//         *
+//         * @see #onPostExecute
+//         * @see #doInBackground
+//         */
+//        @Override
+//        protected void onPreExecute() {
+//            showLoading();
+//            mMovieAdapter.setMovieList(null);
+//        }
+//
+//        /**
+//         * Override this method to perform a computation on a background thread. The
+//         * specified parameters are the parameters passed to {@link #execute}
+//         * by the caller of this task.
+//         * <p>
+//         * This method can call {@link #publishProgress} to publish updates
+//         * on the UI thread.
+//         *
+//         * @param params The parameters of the task.
+//         * @return A result, defined by the subclass of this task.
+//         * @see #onPreExecute()
+//         * @see #onPostExecute
+//         * @see #publishProgress
+//         */
+//        @Override
+//        protected MoviesList doInBackground(String... params) {
+//            String sorting = params[0];
+//            MovieDbApi api = new MovieDbApi();
+//            api.setApiKey(BuildConfig.MOVIE_DB_API_KEY);
+//            String language = Locale.getDefault().toString();
+//            Log.d(TAG, "language used for TMDB: " + language);
+//            api.setLanguage(language);
+//            MoviesList movies;
+//            switch (sorting) {
+//                case Preferences.TOP_RATED:
+//                    movies = api.topRated();
+//                    break;
+//                case Preferences.POPULAR:
+//                default:
+//                    movies = api.popular();
+//                    break;
+//            }
+//            return movies;
+//        }
+//
+//        /**
+//         * <p>Runs on the UI thread after {@link #doInBackground}. The
+//         * specified result is the value returned by {@link #doInBackground}.</p>
+//         * <p>
+//         * <p>This method won't be invoked if the task was cancelled.</p>
+//         *
+//         * @param moviesList The result of the operation computed by {@link #doInBackground}.
+//         * @see #onPreExecute
+//         * @see #doInBackground
+//         * @see #onCancelled(Object)
+//         */
+//        @Override
+//        protected void onPostExecute(MoviesList moviesList) {
+//            if (moviesList != null) {
+//                Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
+//                mMovieAdapter.setMovieList(moviesList);
+//                showResults();
+//            } else {
+//                Log.d(TAG, "got empty result response");
+//                int message = isInternetAvailable() ? R.string.error_no_results : R.string.error_no_connection;
+//                showError(message);
+//            }
+//        }
+//    }
 }

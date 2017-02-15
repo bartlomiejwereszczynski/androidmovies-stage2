@@ -92,7 +92,7 @@ public class MovieDbApi {
             }
             return null;
         }
-        return response.body();
+        return response.body().setType(Preferences.POPULAR);
     }
 
     public MoviesList topRated() {
@@ -120,7 +120,7 @@ public class MovieDbApi {
             }
             return null;
         }
-        return response.body();
+        return response.body().setType(Preferences.TOP_RATED);
     }
 
     public MovieDetails details(int movieId) {
