@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void loadedMovies(@Nullable MoviesList moviesList) {
+    public void onMovieListReady(@Nullable MoviesList moviesList) {
         if (moviesList != null) {
             Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
             mMovieAdapter.setMovieList(moviesList);

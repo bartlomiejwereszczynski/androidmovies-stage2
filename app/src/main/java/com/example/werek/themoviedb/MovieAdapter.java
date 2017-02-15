@@ -104,7 +104,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     @Override
-    public void loadedMovies(@Nullable MoviesList moviesList) {
+    public void onMovieListReady(@Nullable MoviesList moviesList) {
         if (moviesList != null) {
             appendMoviesList(moviesList);
         }

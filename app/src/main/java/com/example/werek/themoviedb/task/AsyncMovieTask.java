@@ -20,7 +20,7 @@ public class AsyncMovieTask extends AsyncTask<String, Void, MoviesList> {
     public interface MovieLoaderListener {
         void onPreExecute();
 
-        void loadedMovies(@Nullable MoviesList moviesList);
+        void onMovieListReady(@Nullable MoviesList moviesList);
     }
 
     public AsyncMovieTask(MovieLoaderListener listener) {
@@ -91,6 +91,6 @@ public class AsyncMovieTask extends AsyncTask<String, Void, MoviesList> {
      */
     @Override
     protected void onPostExecute(MoviesList moviesList) {
-        mListener.loadedMovies(moviesList);
+        mListener.onMovieListReady(moviesList);
     }
 }
