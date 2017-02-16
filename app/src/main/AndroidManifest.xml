@@ -27,6 +27,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
+        <provider
+            android:name=".model.contentprovider.MovieProvider"
+            android:authorities="com.example.werek.themoviedb.model.contentprovider"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -17,10 +17,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by werek on 21.01.2017.
- */
-
 public class MovieDbApi {
     private static final String TAG = MovieDbApi.class.getName();
     private static final String MOVIEDB_API = "https://api.themoviedb.org";
@@ -38,6 +34,9 @@ public class MovieDbApi {
     protected String language;
     private String apiKey;
 
+    /**
+     * constructor initializes retrofit library
+     */
     public MovieDbApi() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(MOVIEDB_API)
@@ -45,6 +44,11 @@ public class MovieDbApi {
                 .build();
     }
 
+    /**
+     * initializes API service endpoints interface
+     *
+     * @return initialized API service
+     */
     private MovieDbService movieDb() {
         if (service == null) {
             service = retrofit.create(MovieDbService.class);
@@ -52,26 +56,59 @@ public class MovieDbApi {
         return service;
     }
 
+    /**
+     * language used for return data
+     *
+     * @return locale
+     */
     public String getLanguage() {
         return language;
     }
 
+    /**
+     * language used for return data
+     *
+     * @param language locale
+     */
     public void setLanguage(String language) {
         this.language = language;
     }
 
+    /**
+     * @return The Movie Database access key
+     */
     public String getApiKey() {
         return apiKey;
     }
 
+    /**
+     * The Movie Database access key
+     *
+     * @param apiKey
+     */
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
     }
 
+    /**
+     * returns first page of popular movies information
+     *
+     * runs on Main thread synchronously
+     *
+     * @return list of movies
+     */
     public MoviesList popular() {
         return popular(1);
     }
 
+    /**
+     * returns specified page of popular movies information
+     *
+     * runs on Main thread synchronously
+     *
+     * @param page page number to fetch
+     * @return list of movies
+     */
     public MoviesList popular(int page) {
         Response<MoviesList> response = null;
 
@@ -97,10 +134,25 @@ public class MovieDbApi {
         return response.body().setType(Preferences.POPULAR);
     }
 
+    /**
+     * returns first page of top rated movies information
+     *
+     * runs on Main thread synchronously
+     *
+     * @return list of movies
+     */
     public MoviesList topRated() {
         return topRated(1);
     }
 
+    /**
+     * returns specified page of top rated movies information
+     *
+     * runs on Main thread synchronously
+     *
+     * @param page page number to fetch
+     * @return list of movies
+     */
     public MoviesList topRated(int page) {
         Response<MoviesList> response = null;
         try {
@@ -149,6 +201,12 @@ public class MovieDbApi {
         return url;
     }
 
+    /**
+     * transforms Movie object to ContentValues to use in ContentProvider insert/update methods
+     *
+     * @param movie movie object which needs to be transformed for insert/update operation
+     * @return movie values in form of ContentValues
+     */
     public ContentValues toContentValue(Movie movie) {
         ContentValues cv = new ContentValues();
         cv.put(MovieContract.FavouriteEntry._ID, movie.getId());
@@ -167,6 +225,12 @@ public class MovieDbApi {
         return cv;
     }
 
+    /**
+     * reads current cursor row and creates Movie object from it
+     *
+     * @param cursor cursor with Movie data
+     * @return Movie object with data populated from cursor
+     */
     public Movie fromSingleCursor(Cursor cursor) {
         Movie movie = new Movie();
         if (cursor.getColumnIndex(MovieContract.FavouriteEntry._ID) != -1) {
