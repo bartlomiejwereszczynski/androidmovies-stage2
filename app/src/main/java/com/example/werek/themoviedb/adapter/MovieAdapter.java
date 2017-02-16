@@ -1,4 +1,4 @@
-package com.example.werek.themoviedb;
+package com.example.werek.themoviedb.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.util.MovieDbApi;
@@ -20,10 +21,17 @@ import butterknife.ButterKnife;
  * Created by werek on 22.01.2017.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>
+         {
     private static final String TAG = MovieAdapter.class.getName();
-    private MoviesList mMovieList;
-    private MovieDetailsListener mMovieDetails;
+    protected MoviesList mMovieList;
+    protected MovieDetailsListener mMovieDetails;
+
+
+
+    public interface MovieDetailsListener {
+        void onMovieDetails(Movie movie);
+    }
 
     public MovieAdapter(@Nullable MovieDetailsListener movieDetails) {
         mMovieDetails = movieDetails;
@@ -39,10 +47,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.loadMovie(mMovieList.getResults().get(position));
-    }
-
-    interface MovieDetailsListener {
-        void onMovieDetails(Movie movie);
     }
 
     /**
@@ -65,9 +69,26 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         notifyDataSetChanged();
     }
 
+    public MovieAdapter addMovie(Movie movie) {
+        int newPosition = mMovieList.getResults().size();
+        mMovieList.getResults().add(movie);
+        notifyItemInserted(newPosition);
+        return this;
+    }
+
+    public MovieAdapter appendMoviesList(MoviesList moviesList) {
+        mMovieList.setPage(moviesList.getPage());
+        for (Movie movie : moviesList.getResults()) {
+            addMovie(movie);
+        }
+        return this;
+    }
+
     public MoviesList getMovieList() {
         return mMovieList;
     }
+
+
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final String TAG = MovieViewHolder.class.getName();
