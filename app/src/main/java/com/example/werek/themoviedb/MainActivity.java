@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     void restoreState(Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIES_LIST) ) {
-            MoviesList list =  savedInstanceState.getParcelable(MOVIES_LIST);
+        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIES_LIST)) {
+            MoviesList list = savedInstanceState.getParcelable(MOVIES_LIST);
             mMovieAdapter.setMovieList(list);
             showResults();
         } else {
@@ -115,6 +115,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         Intent intent = new Intent(this, DetailsActivity.class);
         intent.putExtra(MOVIE_EXTRA, movie);
         startActivity(intent);
+    }
+
+    void setListTitle(String type) {
+        switch (type) {
+            case Preferences.POPULAR:
+                setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_popular));
+                break;
+            case Preferences.TOP_RATED:
+                setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_top_rated));
+                break;
+            default:
+                setTitle(R.string.app_name);
+                break;
+        }
     }
 
     /**
@@ -199,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (moviesList != null) {
             Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
             mMovieAdapter.setMovieList(moviesList);
+            setListTitle(moviesList.getType());
             showResults();
         } else {
             Log.d(TAG, "got empty result response");
