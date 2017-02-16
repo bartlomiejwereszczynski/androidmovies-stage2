@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.werek.themoviedb.adapter.MovieAdapter;
+import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
@@ -96,10 +98,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     void setupGrid() {
-        mMovieAdapter = new MovieAdapter(this);
+        mMovieAdapter = new MovieAdapterPaginated(this);
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager,mMovieAdapter);
+        if (mMovieAdapter instanceof EndlessRecyclerViewScrollListener.LoadMore) {
+            mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager, (EndlessRecyclerViewScrollListener.LoadMore) mMovieAdapter);
+        }
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mMovieAdapter);

@@ -1,4 +1,4 @@
-package com.example.werek.themoviedb;
+package com.example.werek.themoviedb.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -8,10 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
-import com.example.werek.themoviedb.task.AsyncMovieTask;
-import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.MovieDbApi;
 import com.squareup.picasso.Picasso;
 
@@ -23,14 +22,14 @@ import butterknife.ButterKnife;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>
-        implements EndlessRecyclerViewScrollListener.LoadMore, AsyncMovieTask.MovieLoaderListener {
+         {
     private static final String TAG = MovieAdapter.class.getName();
-    private MoviesList mMovieList;
-    private MovieDetailsListener mMovieDetails;
+    protected MoviesList mMovieList;
+    protected MovieDetailsListener mMovieDetails;
 
 
 
-    interface MovieDetailsListener {
+    public interface MovieDetailsListener {
         void onMovieDetails(Movie movie);
     }
 
@@ -89,26 +88,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mMovieList;
     }
 
-    @Override
-    public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-        Log.d(TAG, "onLoadMore: page("+page+"), totalItemCount("+totalItemsCount+")");
-        String sorting = mMovieList != null ? mMovieList.getType() : null;
-        int nextPage = mMovieList != null ? mMovieList.getPage() + 1 : 1;
-        Log.d(TAG, "onLoadMore: sorting("+sorting+"), nextPage("+nextPage+")");
-        new AsyncMovieTask(this,page).execute(sorting);
-    }
 
-    @Override
-    public void onPreExecute() {
-
-    }
-
-    @Override
-    public void onMovieListReady(@Nullable MoviesList moviesList) {
-        if (moviesList != null) {
-            appendMoviesList(moviesList);
-        }
-    }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final String TAG = MovieViewHolder.class.getName();

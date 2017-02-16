@@ -18,8 +18,15 @@ public class AsyncMovieTask extends AsyncTask<String, Void, MoviesList> {
     private int mPage = 1;
 
     public interface MovieLoaderListener {
+        /**
+         * runs on ui thread before movie fetching starts
+         */
         void onPreExecute();
 
+        /**
+         * runs on ui thread after movie list is fetched
+         * @param moviesList contains fetched movies list page
+         */
         void onMovieListReady(@Nullable MoviesList moviesList);
     }
 
