@@ -8,10 +8,14 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Movie implements Parcelable {
+    @SerializedName("id")
+    @Expose
+    private Integer id;
+    @SerializedName("title")
+    @Expose
+    private String title;
     @SerializedName("poster_path")
     @Expose
     private String posterPath;
@@ -24,21 +28,12 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     @Expose
     private String releaseDate;
-    @SerializedName("genre_ids")
-    @Expose
-    private List<Integer> genreIds = null;
-    @SerializedName("id")
-    @Expose
-    private Integer id;
     @SerializedName("original_title")
     @Expose
     private String originalTitle;
     @SerializedName("original_language")
     @Expose
     private String originalLanguage;
-    @SerializedName("title")
-    @Expose
-    private String title;
     @SerializedName("backdrop_path")
     @Expose
     private String backdropPath;
@@ -105,14 +100,6 @@ public class Movie implements Parcelable {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    public List<Integer> getGenreIds() {
-        return genreIds;
-    }
-
-    public void setGenreIds(List<Integer> genreIds) {
-        this.genreIds = genreIds;
     }
 
     public Integer getId() {
@@ -194,6 +181,9 @@ public class Movie implements Parcelable {
 
         Movie movie = (Movie) o;
 
+        if (getId() != null ? !getId().equals(movie.getId()) : movie.getId() != null) return false;
+        if (getTitle() != null ? !getTitle().equals(movie.getTitle()) : movie.getTitle() != null)
+            return false;
         if (getPosterPath() != null ? !getPosterPath().equals(movie.getPosterPath()) : movie.getPosterPath() != null)
             return false;
         if (getAdult() != null ? !getAdult().equals(movie.getAdult()) : movie.getAdult() != null)
@@ -202,14 +192,9 @@ public class Movie implements Parcelable {
             return false;
         if (getReleaseDate() != null ? !getReleaseDate().equals(movie.getReleaseDate()) : movie.getReleaseDate() != null)
             return false;
-        if (getGenreIds() != null ? !getGenreIds().equals(movie.getGenreIds()) : movie.getGenreIds() != null)
-            return false;
-        if (getId() != null ? !getId().equals(movie.getId()) : movie.getId() != null) return false;
         if (getOriginalTitle() != null ? !getOriginalTitle().equals(movie.getOriginalTitle()) : movie.getOriginalTitle() != null)
             return false;
         if (getOriginalLanguage() != null ? !getOriginalLanguage().equals(movie.getOriginalLanguage()) : movie.getOriginalLanguage() != null)
-            return false;
-        if (getTitle() != null ? !getTitle().equals(movie.getTitle()) : movie.getTitle() != null)
             return false;
         if (getBackdropPath() != null ? !getBackdropPath().equals(movie.getBackdropPath()) : movie.getBackdropPath() != null)
             return false;
@@ -225,15 +210,14 @@ public class Movie implements Parcelable {
 
     @Override
     public int hashCode() {
-        int result = getPosterPath() != null ? getPosterPath().hashCode() : 0;
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
+        result = 31 * result + (getPosterPath() != null ? getPosterPath().hashCode() : 0);
         result = 31 * result + (getAdult() != null ? getAdult().hashCode() : 0);
         result = 31 * result + (getOverview() != null ? getOverview().hashCode() : 0);
         result = 31 * result + (getReleaseDate() != null ? getReleaseDate().hashCode() : 0);
-        result = 31 * result + (getGenreIds() != null ? getGenreIds().hashCode() : 0);
-        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         result = 31 * result + (getOriginalTitle() != null ? getOriginalTitle().hashCode() : 0);
         result = 31 * result + (getOriginalLanguage() != null ? getOriginalLanguage().hashCode() : 0);
-        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         result = 31 * result + (getBackdropPath() != null ? getBackdropPath().hashCode() : 0);
         result = 31 * result + (getPopularity() != null ? getPopularity().hashCode() : 0);
         result = 31 * result + (getVoteCount() != null ? getVoteCount().hashCode() : 0);
@@ -245,15 +229,14 @@ public class Movie implements Parcelable {
     @Override
     public String toString() {
         return "Movie{" +
-                "posterPath='" + posterPath + '\'' +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", posterPath='" + posterPath + '\'' +
                 ", adult=" + adult +
                 ", overview='" + overview + '\'' +
                 ", releaseDate='" + releaseDate + '\'' +
-                ", genreIds=" + genreIds +
-                ", id=" + id +
                 ", originalTitle='" + originalTitle + '\'' +
                 ", originalLanguage='" + originalLanguage + '\'' +
-                ", title='" + title + '\'' +
                 ", backdropPath='" + backdropPath + '\'' +
                 ", popularity=" + popularity +
                 ", voteCount=" + voteCount +
@@ -262,6 +245,7 @@ public class Movie implements Parcelable {
                 '}';
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -269,15 +253,14 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(this.id);
+        dest.writeString(this.title);
         dest.writeString(this.posterPath);
         dest.writeValue(this.adult);
         dest.writeString(this.overview);
         dest.writeString(this.releaseDate);
-        dest.writeList(this.genreIds);
-        dest.writeValue(this.id);
         dest.writeString(this.originalTitle);
         dest.writeString(this.originalLanguage);
-        dest.writeString(this.title);
         dest.writeString(this.backdropPath);
         dest.writeValue(this.popularity);
         dest.writeValue(this.voteCount);
@@ -289,16 +272,14 @@ public class Movie implements Parcelable {
     }
 
     protected Movie(Parcel in) {
+        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.title = in.readString();
         this.posterPath = in.readString();
         this.adult = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.overview = in.readString();
         this.releaseDate = in.readString();
-        this.genreIds = new ArrayList<Integer>();
-        in.readList(this.genreIds, List.class.getClassLoader());
-        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
         this.originalTitle = in.readString();
         this.originalLanguage = in.readString();
-        this.title = in.readString();
         this.backdropPath = in.readString();
         this.popularity = (Double) in.readValue(Double.class.getClassLoader());
         this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
