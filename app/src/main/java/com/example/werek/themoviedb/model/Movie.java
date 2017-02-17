@@ -10,6 +10,9 @@ import com.google.gson.annotations.SerializedName;
 import java.net.URL;
 
 public class Movie implements Parcelable {
+    public static final String FAV_UNKNOWN = "unknown";
+    public static final String FAV_YES = "favourite";
+    public static final String FAV_NO = "notfavourite";
     @SerializedName("id")
     @Expose
     private Integer id;
@@ -50,7 +53,11 @@ public class Movie implements Parcelable {
     @Expose
     private Double voteAverage;
 
-
+    /**
+     * holds flag of favorites. if it's null then it's unknown, query to check if it is stored.
+     * otherwise holds status if it's favourite
+     */
+    public String isFavourite = FAV_UNKNOWN;
 
     public String getPosterPath() {
         return posterPath;
@@ -61,20 +68,18 @@ public class Movie implements Parcelable {
     }
 
     public URL getPosterUrl(String size) {
-        return MovieDbApi.buildImageURL(size,getPosterPath());
+        return MovieDbApi.buildImageURL(size, getPosterPath());
     }
 
-    public URL getPosterUrl()
-    {
+    public URL getPosterUrl() {
         return getPosterUrl(MovieDbApi.POSTER_WIDTH_185);
     }
 
     public URL getBackdropUrl(String size) {
-        return MovieDbApi.buildImageURL(size,getBackdropPath());
+        return MovieDbApi.buildImageURL(size, getBackdropPath());
     }
 
-    public URL getBackdropUrl()
-    {
+    public URL getBackdropUrl() {
         return getBackdropUrl(MovieDbApi.POSTER_WIDTH_780);
     }
 

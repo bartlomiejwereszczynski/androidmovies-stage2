@@ -1,16 +1,21 @@
 package com.example.werek.themoviedb;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.werek.themoviedb.model.Movie;
+import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -33,6 +38,7 @@ public class DetailsActivity extends AppCompatActivity {
     TextView mReleaseDate;
     @BindView(R.id.tv_user_rating)
     TextView mRating;
+    private MenuItem mFavouriteMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +58,11 @@ public class DetailsActivity extends AppCompatActivity {
             mMovie = intent.getParcelableExtra(MainActivity.MOVIE_EXTRA);
         }
 
-        if (mMovie != null) {
-            Log.d(TAG, "Movie details: " + mMovie.toString());
-            loadMovie(mMovie);
+        if (mMovie == null) {
+            throw new NullPointerException("Need to have movie object in intent");
         }
+        Log.d(TAG, "Movie details: " + mMovie.toString());
+        loadMovie(mMovie);
     }
 
     private void loadMovie(Movie movie) {
@@ -82,27 +89,68 @@ public class DetailsActivity extends AppCompatActivity {
         setTitle(movie.getTitle());
     }
 
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     * <p>
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.</p>
-     *
-     * @param item The menu item that was selected.
-     * @return boolean Return false to allow normal menu processing to
-     * proceed, true to consume it here.
-     * @see #onCreateOptionsMenu
-     */
+    private void switchFavourite(String favState) {
+        if (mFavouriteMenu == null) {
+            Log.d(TAG, "switchFavourite: menu option is empty");
+            return;
+        }
+        switch (favState) {
+            case Movie.FAV_YES:
+                mFavouriteMenu.setIcon(android.R.drawable.star_big_on);
+                mFavouriteMenu.setTitle(R.string.text_favourite_yes);
+                break;
+            case Movie.FAV_UNKNOWN:
+                new AsyncTask<Movie, Void, String>() {
+                    @Override
+                    protected String doInBackground(Movie... params) {
+                        Movie movie = params[0];
+                        Uri movieUri = MovieContract.FavouriteEntry.buildEntryUri(movie.getId());
+                        Cursor cursor = DetailsActivity.this.getContentResolver().query(movieUri, null, null, null, null);
+                        String result = cursor.getCount() > 0 ? Movie.FAV_YES : Movie.FAV_NO;
+                        cursor.close();
+                        return result;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String isFavourite) {
+                        mMovie.isFavourite = isFavourite;
+                        if (!isFavourite.equals(Movie.FAV_UNKNOWN)) {
+                            Log.d(TAG, "onPostExecute: movie favourite status is " + isFavourite);
+                            switchFavourite(isFavourite);
+                        }
+                    }
+                }.execute(mMovie);
+            case Movie.FAV_NO:
+            default:
+                mFavouriteMenu.setIcon(android.R.drawable.star_big_off);
+                mFavouriteMenu.setTitle(R.string.text_favourite_no);
+                break;
+        }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.details, menu);
+        mFavouriteMenu = menu.findItem(R.id.action_favourite);
+        // as soon as menu is created check what to set
+        switchFavourite(mMovie.isFavourite);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.action_favourite:
+                if (mMovie.isFavourite.equals(Movie.FAV_YES)) {
+                    mMovie.isFavourite = Movie.FAV_NO;
+                } else {
+                    mMovie.isFavourite = Movie.FAV_YES;
+                }
+                switchFavourite(mMovie.isFavourite);
                 return true;
         }
         return super.onOptionsItemSelected(item);

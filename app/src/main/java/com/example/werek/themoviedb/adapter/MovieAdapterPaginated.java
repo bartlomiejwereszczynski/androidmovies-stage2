@@ -18,12 +18,18 @@ public class MovieAdapterPaginated extends MovieAdapter implements EndlessRecycl
 
     @Override
     public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-        String sorting = mMovieList != null ? mMovieList.getType() : null;
-        int nextPage = mMovieList != null ? mMovieList.getPage() + 1 : 1;
-
+        String type = null;
+        int nextPage;
+        if (mMovieList == null) {
+            nextPage = 1;
+        } else {
+            if (mMovieList.getPage().equals(mMovieList.getTotalPages())) return;
+            nextPage = mMovieList.getPage() + 1;
+            type = mMovieList.getType();
+        }
         Log.d(TAG, "onLoadMore: page(" + page + "), totalItemCount(" + totalItemsCount + ")");
-        Log.d(TAG, "onLoadMore: sorting(" + sorting + "), nextPage(" + nextPage + ")");
-        new AsyncMovieTask(this, page).execute(sorting);
+        Log.d(TAG, "onLoadMore: type(" + type + "), nextPage(" + nextPage + ")");
+        new AsyncMovieTask(this, page).execute(type);
     }
 
     @Override
