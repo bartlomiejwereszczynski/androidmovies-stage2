@@ -23,6 +23,17 @@ public class MoviesList implements Parcelable {
     @Expose
     private Integer totalPages;
 
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public MoviesList setType(String type) {
+        this.type = type;
+        return this;
+    }
+
     public Integer getPage() {
         return page;
     }
@@ -68,7 +79,9 @@ public class MoviesList implements Parcelable {
             return false;
         if (getTotalResults() != null ? !getTotalResults().equals(that.getTotalResults()) : that.getTotalResults() != null)
             return false;
-        return getTotalPages() != null ? getTotalPages().equals(that.getTotalPages()) : that.getTotalPages() == null;
+        if (getTotalPages() != null ? !getTotalPages().equals(that.getTotalPages()) : that.getTotalPages() != null)
+            return false;
+        return getType() != null ? getType().equals(that.getType()) : that.getType() == null;
 
     }
 
@@ -78,6 +91,7 @@ public class MoviesList implements Parcelable {
         result = 31 * result + (getResults() != null ? getResults().hashCode() : 0);
         result = 31 * result + (getTotalResults() != null ? getTotalResults().hashCode() : 0);
         result = 31 * result + (getTotalPages() != null ? getTotalPages().hashCode() : 0);
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
         return result;
     }
 
@@ -88,6 +102,7 @@ public class MoviesList implements Parcelable {
                 ", results=" + results +
                 ", totalResults=" + totalResults +
                 ", totalPages=" + totalPages +
+                ", type='" + type + '\'' +
                 '}';
     }
 
@@ -103,6 +118,7 @@ public class MoviesList implements Parcelable {
         dest.writeTypedList(results);
         dest.writeValue(this.totalResults);
         dest.writeValue(this.totalPages);
+        dest.writeString(this.type);
     }
 
     public MoviesList() {
@@ -113,9 +129,10 @@ public class MoviesList implements Parcelable {
         this.results = in.createTypedArrayList(Movie.CREATOR);
         this.totalResults = (Integer) in.readValue(Integer.class.getClassLoader());
         this.totalPages = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.type = in.readString();
     }
 
-    public static final Parcelable.Creator<MoviesList> CREATOR = new Parcelable.Creator<MoviesList>() {
+    public static final Creator<MoviesList> CREATOR = new Creator<MoviesList>() {
         public MoviesList createFromParcel(Parcel source) {
             return new MoviesList(source);
         }
