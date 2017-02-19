@@ -9,10 +9,13 @@ import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -199,6 +202,17 @@ public class MovieDbApi {
             e.printStackTrace();
         }
         return url;
+    }
+
+    public void downloadImageTo(String size, String image, File file) throws IOException {
+        image = image.startsWith("/") ? image.substring(1) : image;
+
+        Response<ResponseBody> response = movieDb().downloadImage(size, image).execute();
+
+        if (response.isSuccessful()) {
+            FileOutputStream fo = new FileOutputStream(file);
+            fo.write(response.body().bytes());
+        }
     }
 
     /**

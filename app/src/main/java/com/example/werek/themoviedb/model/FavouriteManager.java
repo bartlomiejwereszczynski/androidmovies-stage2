@@ -73,7 +73,9 @@ public class FavouriteManager {
         Cursor cursor = mContext.getContentResolver().query(FavouriteEntry.CONTENT_URI, null, null, null, null);
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-                list.getResults().add(MovieDbApi.fromSingleCursor(cursor));
+                Movie movie = MovieDbApi.fromSingleCursor(cursor);
+                movie.isFavourite = Movie.FAV_YES;
+                list.getResults().add(movie);
             }
         }
 
