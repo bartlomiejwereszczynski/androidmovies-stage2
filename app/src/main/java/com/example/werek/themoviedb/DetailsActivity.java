@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
+import com.example.werek.themoviedb.model.FavouriteManager;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -145,10 +146,13 @@ public class DetailsActivity extends AppCompatActivity {
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_favourite:
+                FavouriteManager fm = new FavouriteManager(this);
                 if (mMovie.isFavourite.equals(Movie.FAV_YES)) {
                     mMovie.isFavourite = Movie.FAV_NO;
+                    fm.removeFavourite(mMovie);
                 } else {
                     mMovie.isFavourite = Movie.FAV_YES;
+                    fm.storeFavourite(mMovie);
                 }
                 switchFavourite(mMovie.isFavourite);
                 return true;

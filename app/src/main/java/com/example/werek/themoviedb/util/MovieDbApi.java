@@ -207,7 +207,7 @@ public class MovieDbApi {
      * @param movie movie object which needs to be transformed for insert/update operation
      * @return movie values in form of ContentValues
      */
-    public ContentValues toContentValue(Movie movie) {
+    public static ContentValues toContentValue(Movie movie) {
         ContentValues cv = new ContentValues();
         cv.put(MovieContract.FavouriteEntry._ID, movie.getId());
         cv.put(MovieContract.FavouriteEntry._TITLE, movie.getTitle());
@@ -231,7 +231,7 @@ public class MovieDbApi {
      * @param cursor cursor with Movie data
      * @return Movie object with data populated from cursor
      */
-    public Movie fromSingleCursor(Cursor cursor) {
+    public static Movie fromSingleCursor(Cursor cursor) {
         Movie movie = new Movie();
         if (cursor.getColumnIndex(MovieContract.FavouriteEntry._ID) != -1) {
             movie.setId(cursor.getInt(cursor.getColumnIndex(MovieContract.FavouriteEntry._ID)));
