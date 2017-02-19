@@ -11,12 +11,21 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.example.werek.themoviedb.model.MovieImageStore;
+import com.example.werek.themoviedb.model.contentprovider.MovieContract.FavouriteEntry;
+import com.example.werek.themoviedb.util.MovieDbApi;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by werek on 16.02.2017.
  */
 
 public class MovieProvider extends ContentProvider {
+    public static final String TAG = MovieProvider.class.getSimpleName();
     public static final int CODE_FAVOURITES = 100;
     public static final int CODE_FAVOURITES_WITH_ID = 101;
 
@@ -87,9 +96,9 @@ public class MovieProvider extends ContentProvider {
                 String[] selectionArguments = new String[]{movieId};
 
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry.TABLE_NAME,
                         projection,
-                        MovieContract.FavouriteEntry._ID + " = ? ",
+                        FavouriteEntry._ID + " = ? ",
                         selectionArguments,
                         null,
                         null,
@@ -100,7 +109,7 @@ public class MovieProvider extends ContentProvider {
 
             case CODE_FAVOURITES: {
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -167,12 +176,17 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             case CODE_FAVOURITES:
-                if (!values.containsKey(MovieContract.FavouriteEntry._ID)) {
+                if (!values.containsKey(FavouriteEntry._ID)) {
                     throw new UnsupportedOperationException("Need movie id to properly insert record into db");
                 }
-                long id = db.insert(MovieContract.FavouriteEntry.TABLE_NAME, null, values);
+                long id = db.insert(FavouriteEntry.TABLE_NAME, null, values);
                 if (id > 0) {
-                    inserted = ContentUris.withAppendedId(MovieContract.FavouriteEntry.CONTENT_URI, id);
+                    inserted = ContentUris.withAppendedId(FavouriteEntry.CONTENT_URI, id);
+                    storeImages(
+                            values.getAsInteger(FavouriteEntry._ID),
+                            values.getAsString(FavouriteEntry._POSTER_PATH),
+                            values.getAsString(FavouriteEntry._BACKDROP_PATH)
+                    );
                 } else {
                     throw new SQLiteException("error while inserting data");
                 }
@@ -213,7 +227,7 @@ public class MovieProvider extends ContentProvider {
 
             case CODE_FAVOURITES:
                 numRowsDeleted = mOpenHelper.getWritableDatabase().delete(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry.TABLE_NAME,
                         selection,
                         selectionArgs);
                 break;
@@ -223,9 +237,10 @@ public class MovieProvider extends ContentProvider {
                 String[] selectionArguments = new String[]{movieId};
 
                 numRowsDeleted = mOpenHelper.getWritableDatabase().delete(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
-                        MovieContract.FavouriteEntry._ID + " = ? ",
+                        FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry._ID + " = ? ",
                         selectionArguments);
+                new MovieImageStore(Integer.valueOf(movieId)).deleteMovieDir();
                 break;
 
             default:
@@ -252,20 +267,25 @@ public class MovieProvider extends ContentProvider {
             case CODE_FAVOURITES_WITH_ID:
                 String movieId = uri.getLastPathSegment();
                 String[] whereArgs = new String[]{movieId};
-                if (values.containsKey(MovieContract.FavouriteEntry._ID)) {
+                if (values.containsKey(FavouriteEntry._ID)) {
                     // no need to pass it to db
-                    values.remove(MovieContract.FavouriteEntry._ID);
+                    values.remove(FavouriteEntry._ID);
                 }
                 updated = db.update(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry.TABLE_NAME,
                         values,
-                        MovieContract.FavouriteEntry._ID + " = ? ",
+                        FavouriteEntry._ID + " = ? ",
                         whereArgs
+                );
+                storeImages(
+                        Integer.valueOf(movieId),
+                        values.getAsString(FavouriteEntry._POSTER_PATH),
+                        values.getAsString(FavouriteEntry._BACKDROP_PATH)
                 );
                 break;
             case CODE_FAVOURITES:
                 updated = db.update(
-                        MovieContract.FavouriteEntry.TABLE_NAME,
+                        FavouriteEntry.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs
@@ -281,7 +301,22 @@ public class MovieProvider extends ContentProvider {
 
         return updated;
     }
-    
+
+    private void storeImages(int id, String poster, String backdrop) {
+        MovieImageStore imageStore = new MovieImageStore(id);
+        File posterFile = imageStore.getPoster();
+        File backdropFile = imageStore.getBackdrop();
+        MovieDbApi movieApi = new MovieDbApi();
+
+        try {
+            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_342,poster,posterFile);
+            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_780,backdrop,backdropFile);
+            Log.d(TAG, "storeImages: stored poster and backdrop images");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * You do not need to call this method. This is a method specifically to assist the testing
      * framework in running smoothly. You can read more at:

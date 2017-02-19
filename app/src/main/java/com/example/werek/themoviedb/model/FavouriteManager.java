@@ -1,5 +1,6 @@
 package com.example.werek.themoviedb.model;
 
+import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 public class FavouriteManager {
     public static final String TAG = FavouriteManager.class.getSimpleName();
     private final Context mContext;
+    public static final int INSERT=10001;
+    public static final int UPDATE=10002;
 
     public FavouriteManager(Context context) {
         mContext = context;
@@ -30,10 +33,10 @@ public class FavouriteManager {
         ContentResolver contentResolver = mContext.getContentResolver();
         Movie stored = fetchFavourite(movie.getId());
         if (stored != null) {
-            contentResolver.update(FavouriteEntry.buildEntryUri(movie.getId()), cv, null, null);
+            new AsyncQueryHandler(contentResolver){}.startUpdate(UPDATE,null,FavouriteEntry.buildEntryUri(movie.getId()),cv, null,null);
             Log.d(TAG, "storeFavourite: updated movie " + movie);
         } else {
-            contentResolver.insert(FavouriteEntry.CONTENT_URI, cv);
+            new AsyncQueryHandler(contentResolver){}.startInsert(INSERT,null,FavouriteEntry.CONTENT_URI, cv);
             Log.d(TAG, "storeFavourite: inserted movie " + movie);
         }
         return this;

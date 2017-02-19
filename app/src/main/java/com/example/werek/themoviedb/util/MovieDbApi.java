@@ -95,7 +95,7 @@ public class MovieDbApi {
 
     /**
      * returns first page of popular movies information
-     *
+     * <p>
      * runs on Main thread synchronously
      *
      * @return list of movies
@@ -106,7 +106,7 @@ public class MovieDbApi {
 
     /**
      * returns specified page of popular movies information
-     *
+     * <p>
      * runs on Main thread synchronously
      *
      * @param page page number to fetch
@@ -139,7 +139,7 @@ public class MovieDbApi {
 
     /**
      * returns first page of top rated movies information
-     *
+     * <p>
      * runs on Main thread synchronously
      *
      * @return list of movies
@@ -150,7 +150,7 @@ public class MovieDbApi {
 
     /**
      * returns specified page of top rated movies information
-     *
+     * <p>
      * runs on Main thread synchronously
      *
      * @param page page number to fetch
@@ -206,12 +206,14 @@ public class MovieDbApi {
 
     public void downloadImageTo(String size, String image, File file) throws IOException {
         image = image.startsWith("/") ? image.substring(1) : image;
-
+        Log.d(TAG, "downloadImageTo: size(" + size + "), image(" + image + "), file(" + file + ")");
         Response<ResponseBody> response = movieDb().downloadImage(size, image).execute();
 
         if (response.isSuccessful()) {
             FileOutputStream fo = new FileOutputStream(file);
             fo.write(response.body().bytes());
+            fo.close();
+            Log.d(TAG, "downloadImageTo: download successful");
         }
     }
 

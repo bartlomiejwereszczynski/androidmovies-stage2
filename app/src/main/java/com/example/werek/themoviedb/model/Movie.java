@@ -7,6 +7,8 @@ import com.example.werek.themoviedb.util.MovieDbApi;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Movie implements Parcelable {
@@ -72,6 +74,16 @@ public class Movie implements Parcelable {
     }
 
     public URL getPosterUrl() {
+        if (isFavourite.equals(FAV_YES)) {
+            File poster = new MovieImageStore(id).getPoster();
+            if (poster.exists()) {
+                try {
+                    return poster.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return getPosterUrl(MovieDbApi.POSTER_WIDTH_185);
     }
 
@@ -80,6 +92,16 @@ public class Movie implements Parcelable {
     }
 
     public URL getBackdropUrl() {
+        if (isFavourite.equals(FAV_YES)) {
+            File backdrop = new MovieImageStore(id).getBackdrop();
+            if (backdrop.exists()) {
+                try {
+                    return backdrop.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return getBackdropUrl(MovieDbApi.POSTER_WIDTH_780);
     }
 

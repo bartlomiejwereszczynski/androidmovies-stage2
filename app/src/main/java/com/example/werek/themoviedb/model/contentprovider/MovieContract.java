@@ -3,10 +3,6 @@ package com.example.werek.themoviedb.model.contentprovider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Created by werek on 16.02.2017.
- */
-
 public class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.example.werek.themoviedb.model.contentprovider";
 
@@ -35,6 +31,6 @@ public class MovieContract {
 
         public static Uri buildEntryUri(int id) {
             return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
-        };
+        }
     }
 }

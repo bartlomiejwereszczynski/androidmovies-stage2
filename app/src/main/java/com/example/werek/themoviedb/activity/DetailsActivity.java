@@ -1,4 +1,4 @@
-package com.example.werek.themoviedb;
+package com.example.werek.themoviedb.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.model.FavouriteManager;
