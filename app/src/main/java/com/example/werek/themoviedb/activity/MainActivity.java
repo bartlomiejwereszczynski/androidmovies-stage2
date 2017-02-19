@@ -1,9 +1,6 @@
-package com.example.werek.themoviedb;
+package com.example.werek.themoviedb.activity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +13,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.werek.themoviedb.AppApplication;
+import com.example.werek.themoviedb.BuildConfig;
+import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.adapter.MovieAdapter;
 import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
 import com.example.werek.themoviedb.model.Movie;
@@ -24,6 +24,7 @@ import com.example.werek.themoviedb.task.AsyncMovieTask;
 import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.Preferences;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     TextView mError;
     @BindView(R.id.pb_loading)
     ProgressBar mLoading;
+    @BindInt(R.integer.grid_columns)
+    int mGridColumns;
     private EndlessRecyclerViewScrollListener mEndlessScroll;
 
     @Override
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (savedInstanceState != null && savedInstanceState.containsKey(MOVIES_LIST)) {
             MoviesList list = savedInstanceState.getParcelable(MOVIES_LIST);
             mMovieAdapter.setMovieList(list);
+            setListTitle(list.getType());
             showResults();
         } else {
             loadMovies(null);
@@ -100,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     void setupGrid() {
         mMovieAdapter = new MovieAdapterPaginated(this);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, mGridColumns);
         if (mMovieAdapter instanceof EndlessRecyclerViewScrollListener.LoadMore) {
             mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager, (EndlessRecyclerViewScrollListener.LoadMore) mMovieAdapter);
         }
@@ -194,13 +198,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return super.onOptionsItemSelected(item);
     }
 
-    boolean isInternetAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
     @Override
     public void onPreExecute() {
         showLoading();
@@ -217,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             showResults();
         } else {
             Log.d(TAG, "got empty result response");
-            int message = isInternetAvailable() ? R.string.error_no_results : R.string.error_no_connection;
+            int message = AppApplication.app.isInternetAvailable() ? R.string.error_no_results : R.string.error_no_connection;
             showError(message);
         }
     }

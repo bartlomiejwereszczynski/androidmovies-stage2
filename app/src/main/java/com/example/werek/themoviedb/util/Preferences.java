@@ -12,6 +12,7 @@ public class Preferences {
     private static final String SORTING = "listSorting";
     public static final String TOP_RATED = "topRated";
     public static final String POPULAR = "popular";
+    public static final String FAVOURITE = "favourite";
 
     public static void setSorting(Context context, String choice) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
