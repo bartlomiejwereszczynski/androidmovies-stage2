@@ -24,6 +24,7 @@ import com.example.werek.themoviedb.task.AsyncMovieTask;
 import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.Preferences;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     TextView mError;
     @BindView(R.id.pb_loading)
     ProgressBar mLoading;
+    @BindInt(R.integer.grid_columns)
+    int mGridColumns;
     private EndlessRecyclerViewScrollListener mEndlessScroll;
 
     @Override
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (savedInstanceState != null && savedInstanceState.containsKey(MOVIES_LIST)) {
             MoviesList list = savedInstanceState.getParcelable(MOVIES_LIST);
             mMovieAdapter.setMovieList(list);
+            setListTitle(list.getType());
             showResults();
         } else {
             loadMovies(null);
@@ -100,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     void setupGrid() {
         mMovieAdapter = new MovieAdapterPaginated(this);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, mGridColumns);
         if (mMovieAdapter instanceof EndlessRecyclerViewScrollListener.LoadMore) {
             mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager, (EndlessRecyclerViewScrollListener.LoadMore) mMovieAdapter);
         }
