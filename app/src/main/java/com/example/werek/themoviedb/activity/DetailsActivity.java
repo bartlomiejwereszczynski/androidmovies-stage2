@@ -2,6 +2,7 @@ package com.example.werek.themoviedb.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,43 +12,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.werek.themoviedb.R;
+import com.example.werek.themoviedb.databinding.ActivityDetailsBinding;
+import com.example.werek.themoviedb.model.FavouriteManager;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
-import com.example.werek.themoviedb.model.FavouriteManager;
-import com.squareup.picasso.Picasso;
-
-import java.net.URL;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import com.example.werek.themoviedb.viewmodel.MovieDetailsViewModel;
 
 public class DetailsActivity extends AppCompatActivity {
     private static final String TAG = DetailsActivity.class.getName();
     protected Movie mMovie;
-    @BindView(R.id.iv_poster)
-    ImageView mPoster;
-    @BindView(R.id.iv_backdrop)
-    ImageView mBackdrop;
-    @BindView(R.id.tv_title)
-    TextView mTitle;
-    @BindView(R.id.tv_synopsis)
-    TextView mSynopsis;
-    @BindView(R.id.tv_release_date)
-    TextView mReleaseDate;
-    @BindView(R.id.tv_user_rating)
-    TextView mRating;
     private MenuItem mFavouriteMenu;
+    private ActivityDetailsBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
-
-        ButterKnife.bind(this);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -68,26 +50,7 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void loadMovie(Movie movie) {
-        mTitle.setText(movie.getOriginalTitle());
-        mSynopsis.setText(movie.getOverview());
-        mReleaseDate.setText(movie.getReleaseDate());
-        mRating.setText(String.valueOf(movie.getVoteAverage()));
-        URL backdrop = movie.getBackdropUrl();
-        URL poster = movie.getPosterUrl();
-        if (poster != null) {
-            Picasso.with(this)
-                    .load(poster.toString())
-                    .error(R.drawable.ic_chain_broken)
-                    .placeholder(R.drawable.ic_image)
-                    .into(mPoster);
-        }
-        if (backdrop != null) {
-            Picasso.with(this)
-                    .load(backdrop.toString())
-                    .error(R.drawable.ic_chain_broken)
-                    .placeholder(R.drawable.ic_image)
-                    .into(mBackdrop);
-        }
+        mBinding.setMovie(new MovieDetailsViewModel(movie));
         setTitle(movie.getTitle());
     }
 
