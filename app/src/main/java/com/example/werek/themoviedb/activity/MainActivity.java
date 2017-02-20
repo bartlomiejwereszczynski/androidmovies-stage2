@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -18,12 +19,15 @@ import com.example.werek.themoviedb.BuildConfig;
 import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.adapter.MovieAdapter;
 import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
+import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
+import com.example.werek.themoviedb.task.FavouriteMovieTask;
 import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.Preferences;
 
+import butterknife.BindBool;
 import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,9 +43,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     TextView mError;
     @BindView(R.id.pb_loading)
     ProgressBar mLoading;
+    @Nullable
+    @BindView(R.id.main_list)
+    LinearLayout mTwoPaneLayout;
     @BindInt(R.integer.grid_columns)
     int mGridColumns;
+    @BindBool(R.bool.use_fragment)
+    boolean mUseFragment;
     private EndlessRecyclerViewScrollListener mEndlessScroll;
+    private MovieDetailsFragment mDetailsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,24 +83,40 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (sorting == null) {
             sorting = Preferences.getSorting(this);
         }
-        new AsyncMovieTask(this).execute(sorting);
+        if (sorting.equals(Preferences.FAVOURITE)) {
+            new FavouriteMovieTask(this).execute();
+        } else {
+            new AsyncMovieTask(this).execute(sorting);
+        }
     }
 
     void showError(int stringResource) {
-        mRecyclerView.setVisibility(View.INVISIBLE);
+        if (mUseFragment) {
+            mTwoPaneLayout.setVisibility(View.INVISIBLE);
+        } else {
+            mRecyclerView.setVisibility(View.INVISIBLE);
+        }
         mLoading.setVisibility(View.INVISIBLE);
         mError.setText(stringResource);
         mError.setVisibility(View.VISIBLE);
     }
 
     void showLoading() {
-        mRecyclerView.setVisibility(View.INVISIBLE);
+        if (mUseFragment) {
+            mTwoPaneLayout.setVisibility(View.INVISIBLE);
+        } else {
+            mRecyclerView.setVisibility(View.INVISIBLE);
+        }
         mError.setVisibility(View.INVISIBLE);
         mLoading.setVisibility(View.VISIBLE);
     }
 
     void showResults() {
-        mRecyclerView.setVisibility(View.VISIBLE);
+        if (mUseFragment) {
+            mTwoPaneLayout.setVisibility(View.VISIBLE);
+        } else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
         mError.setVisibility(View.INVISIBLE);
         mLoading.setVisibility(View.INVISIBLE);
     }
@@ -102,8 +128,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     void setupGrid() {
+        if (mUseFragment) {
+            mDetailsFragment = (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
+        }
         mMovieAdapter = new MovieAdapterPaginated(this);
-
         GridLayoutManager layoutManager = new GridLayoutManager(this, mGridColumns);
         if (mMovieAdapter instanceof EndlessRecyclerViewScrollListener.LoadMore) {
             mEndlessScroll = new EndlessRecyclerViewScrollListener(layoutManager, (EndlessRecyclerViewScrollListener.LoadMore) mMovieAdapter);
@@ -112,13 +140,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mMovieAdapter);
         mRecyclerView.addOnScrollListener(mEndlessScroll);
+
     }
 
     @Override
     public void onMovieDetails(Movie movie) {
-        Intent intent = new Intent(this, DetailsActivity.class);
-        intent.putExtra(MOVIE_EXTRA, movie);
-        startActivity(intent);
+        if (mUseFragment) {
+            mDetailsFragment.loadMovie(movie);
+        } else {
+            Intent intent = new Intent(this, DetailsActivity.class);
+            intent.putExtra(MOVIE_EXTRA, movie);
+            startActivity(intent);
+        }
     }
 
     void setListTitle(String type) {
@@ -129,60 +162,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case Preferences.TOP_RATED:
                 setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_top_rated));
                 break;
+            case Preferences.FAVOURITE:
+                setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_favourite));
+                break;
             default:
                 setTitle(R.string.app_name);
                 break;
         }
     }
 
-    /**
-     * Initialize the contents of the Activity's standard options menu.  You
-     * should place your menu items in to <var>menu</var>.
-     * <p>
-     * <p>This is only called once, the first time the options menu is
-     * displayed.  To update the menu every time it is displayed, see
-     * {@link #onPrepareOptionsMenu}.
-     * <p>
-     * <p>The default implementation populates the menu with standard system
-     * menu items.  These are placed in the {@link Menu#CATEGORY_SYSTEM} group so that
-     * they will be correctly ordered with application-defined menu items.
-     * Deriving classes should always call through to the base implementation.
-     * <p>
-     * <p>You can safely hold on to <var>menu</var> (and any items created
-     * from it), making modifications to it as desired, until the next
-     * time onCreateOptionsMenu() is called.
-     * <p>
-     * <p>When you add items to the menu, you can implement the Activity's
-     * {@link #onOptionsItemSelected} method to handle them there.
-     *
-     * @param menu The options menu in which you place your items.
-     * @return You must return true for the menu to be displayed;
-     * if you return false it will not be shown.
-     * @see #onPrepareOptionsMenu
-     * @see #onOptionsItemSelected
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     * <p>
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.</p>
-     *
-     * @param item The menu item that was selected.
-     * @return boolean Return false to allow normal menu processing to
-     * proceed, true to consume it here.
-     * @see #onCreateOptionsMenu
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -193,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.action_sort_top_rated:
                 Preferences.setSorting(this, Preferences.TOP_RATED);
                 loadMovies(Preferences.TOP_RATED);
+                return true;
+            case R.id.action_sort_favourite:
+                Preferences.setSorting(this, Preferences.FAVOURITE);
+                loadMovies(Preferences.FAVOURITE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -211,6 +209,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             Log.d(TAG, "got response with " + moviesList.getResults().size() + " movies");
             mMovieAdapter.setMovieList(moviesList);
             setListTitle(moviesList.getType());
+            if (mUseFragment) {
+                // load first movie at start
+                mDetailsFragment.loadMovie(moviesList.getResults().get(0));
+            }
             showResults();
         } else {
             Log.d(TAG, "got empty result response");

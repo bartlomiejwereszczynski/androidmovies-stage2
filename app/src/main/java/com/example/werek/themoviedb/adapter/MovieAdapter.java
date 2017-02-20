@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
-import com.example.werek.themoviedb.util.MovieDbApi;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -111,7 +110,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
          */
         void loadMovie(Movie movie) {
             Log.d(TAG, "Loading movie poster for: " + movie.getTitle());
-            String posterUrl = movie.getPosterUrl(MovieDbApi.POSTER_WIDTH_342).toString();
+            String posterUrl = movie.getPosterUrl().toString();
             Log.d(TAG, "poster url: " + posterUrl);
             Picasso.with(mPosterImage.getContext())
                     .load(posterUrl)

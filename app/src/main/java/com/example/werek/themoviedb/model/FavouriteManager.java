@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.werek.themoviedb.AppApplication;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract.FavouriteEntry;
 import com.example.werek.themoviedb.util.MovieDbApi;
 import com.example.werek.themoviedb.util.Preferences;
@@ -23,6 +24,10 @@ public class FavouriteManager {
     private final Context mContext;
     public static final int INSERT=10001;
     public static final int UPDATE=10002;
+
+    public FavouriteManager() {
+        mContext = AppApplication.app;
+    }
 
     public FavouriteManager(Context context) {
         mContext = context;

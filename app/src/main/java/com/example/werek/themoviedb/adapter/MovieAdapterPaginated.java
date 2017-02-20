@@ -22,6 +22,7 @@ public class MovieAdapterPaginated extends MovieAdapter implements EndlessRecycl
         int nextPage;
         if (mMovieList == null) {
             nextPage = 1;
+            Log.d(TAG, "onLoadMore: movie list is null");
         } else {
             if (mMovieList.getPage().equals(mMovieList.getTotalPages())) return;
             nextPage = mMovieList.getPage() + 1;
@@ -29,7 +30,7 @@ public class MovieAdapterPaginated extends MovieAdapter implements EndlessRecycl
         }
         Log.d(TAG, "onLoadMore: page(" + page + "), totalItemCount(" + totalItemsCount + ")");
         Log.d(TAG, "onLoadMore: type(" + type + "), nextPage(" + nextPage + ")");
-        new AsyncMovieTask(this, page).execute(type);
+        new AsyncMovieTask(this, nextPage).execute(type);
     }
 
     @Override
@@ -39,7 +40,12 @@ public class MovieAdapterPaginated extends MovieAdapter implements EndlessRecycl
 
     @Override
     public void onMovieListReady(@Nullable MoviesList moviesList) {
+
         if (moviesList != null) {
+            if (moviesList.getPage() <= mMovieList.getPage()) {
+                Log.d(TAG, "onMovieListReady: appendMoviesList: got movie list which we already have, trigger loading next page");
+                // trigger notification to load
+            }
             appendMoviesList(moviesList);
         }
     }
