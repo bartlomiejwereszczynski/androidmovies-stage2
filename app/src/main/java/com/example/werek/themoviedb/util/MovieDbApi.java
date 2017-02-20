@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
+import com.example.werek.themoviedb.model.ReviewList;
+import com.example.werek.themoviedb.model.VideosList;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 
 import java.io.File;
@@ -192,6 +194,54 @@ public class MovieDbApi {
             return null;
         }
         return response.body().setType(Preferences.TOP_RATED);
+    }
+
+    public VideosList movieVideos(int movieId) {
+        Response<VideosList> response = null;
+        try {
+            response = movieDb().movieVideos(apiKey, language, movieId).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (response == null) {
+            Log.d(TAG, "movieVideos: response is null");
+            return null;
+        }
+        if (!response.isSuccessful()) {
+            Log.d(TAG, "movieVideos: response is unsuccessful, got error code: " + response.code());
+            try {
+                Log.d(TAG, "movieVideos: response is unsuccessful, got error body: " + response.errorBody().string());
+            } catch (IOException e) {
+                Log.d(TAG, "movieVideos: response is unsuccessful, decoding body thrown IOException");
+                e.printStackTrace();
+            }
+            return null;
+        }
+        return response.body();
+    }
+
+    public ReviewList movieReviews(int movieId) {
+        Response<ReviewList> response = null;
+        try {
+            response = movieDb().movieReviews(apiKey, language, movieId).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (response == null) {
+            Log.d(TAG, "movieVideos: response is null");
+            return null;
+        }
+        if (!response.isSuccessful()) {
+            Log.d(TAG, "movieVideos: response is unsuccessful, got error code: " + response.code());
+            try {
+                Log.d(TAG, "movieVideos: response is unsuccessful, got error body: " + response.errorBody().string());
+            } catch (IOException e) {
+                Log.d(TAG, "movieVideos: response is unsuccessful, decoding body thrown IOException");
+                e.printStackTrace();
+            }
+            return null;
+        }
+        return response.body();
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.example.werek.themoviedb.util;
 
 import com.example.werek.themoviedb.model.MoviesList;
+import com.example.werek.themoviedb.model.ReviewList;
+import com.example.werek.themoviedb.model.VideosList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -21,4 +23,10 @@ public interface MovieDbService {
 
     @GET("/t/p/{size}/{image}")
     Call<ResponseBody> downloadImage(@Path("size") String size, @Path("image") String image);
+
+    @GET("/movie/{movie_id}/videos")
+    Call<VideosList> movieVideos(@Query("api_key") String apiKey, @Query("language") String language, @Path("movie_id") int movieId);
+
+    @GET("/movie/{movie_id}/reviews")
+    Call<ReviewList> movieReviews(@Query("api_key") String apiKey, @Query("language") String language, @Path("movie_id") int movieId);
 }
