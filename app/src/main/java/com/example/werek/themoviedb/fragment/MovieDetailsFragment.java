@@ -37,11 +37,9 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details,container,false);
-        if (getArguments().containsKey(MainActivity.MOVIE_EXTRA)) {
+        if (getArguments() != null && getArguments().containsKey(MainActivity.MOVIE_EXTRA)) {
             mMovie = getArguments().getParcelable(MainActivity.MOVIE_EXTRA);
             loadMovie(mMovie);
-        } else {
-            throw new IllegalArgumentException("expected to receive movie object in arguments");
         }
         return mBinding.getRoot();
     }
