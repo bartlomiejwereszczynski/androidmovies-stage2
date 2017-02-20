@@ -1,6 +1,7 @@
 package com.example.werek.themoviedb.viewmodel;
 
 import android.databinding.BindingAdapter;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.example.werek.themoviedb.R;
@@ -14,6 +15,7 @@ import java.net.URL;
  */
 
 public class MovieDetailsViewModel {
+    private static final String TAG = MovieDetailsViewModel.class.getSimpleName();
     private Movie mMovie;
 
     public MovieDetailsViewModel(Movie movie) {
@@ -50,6 +52,10 @@ public class MovieDetailsViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, URL imageUrl) {
+        if (imageUrl == null) {
+            Log.d(TAG, "loadImage: empty image url");
+            return;
+        }
         Picasso.with(view.getContext())
                 .load(imageUrl.toString())
                 .placeholder(R.drawable.ic_image)

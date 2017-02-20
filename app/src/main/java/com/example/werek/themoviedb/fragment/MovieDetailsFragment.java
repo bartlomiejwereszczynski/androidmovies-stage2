@@ -36,9 +36,14 @@ public class MovieDetailsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details,container,false);
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details, container, false);
         if (getArguments() != null && getArguments().containsKey(MainActivity.MOVIE_EXTRA)) {
             mMovie = getArguments().getParcelable(MainActivity.MOVIE_EXTRA);
+        } else if (savedInstanceState != null && savedInstanceState.containsKey(MainActivity.MOVIE_EXTRA)) {
+            mMovie = savedInstanceState.getParcelable(MainActivity.MOVIE_EXTRA);
+        }
+
+        if (mMovie != null) {
             loadMovie(mMovie);
         }
         return mBinding.getRoot();
@@ -48,6 +53,7 @@ public class MovieDetailsFragment extends Fragment {
         mMovie = movie;
         mBinding.setMovie(new MovieDetailsViewModel(mMovie));
         switchFavouriteState(mMovie.isFavourite);
+        mBinding.getRoot().requestLayout();
     }
 
     private void switchFavouriteState(String favState) {
@@ -117,5 +123,11 @@ public class MovieDetailsFragment extends Fragment {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(MainActivity.MOVIE_EXTRA, mMovie);
     }
 }
