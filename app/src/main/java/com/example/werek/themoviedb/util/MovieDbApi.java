@@ -228,15 +228,15 @@ public class MovieDbApi {
             e.printStackTrace();
         }
         if (response == null) {
-            Log.d(TAG, "movieVideos: response is null");
+            Log.d(TAG, "movieReviews: response is null");
             return null;
         }
         if (!response.isSuccessful()) {
-            Log.d(TAG, "movieVideos: response is unsuccessful, got error code: " + response.code());
+            Log.d(TAG, "movieReviews: response is unsuccessful, got error code: " + response.code());
             try {
-                Log.d(TAG, "movieVideos: response is unsuccessful, got error body: " + response.errorBody().string());
+                Log.d(TAG, "movieReviews: response is unsuccessful, got error body: " + response.errorBody().string());
             } catch (IOException e) {
-                Log.d(TAG, "movieVideos: response is unsuccessful, decoding body thrown IOException");
+                Log.d(TAG, "movieReviews: response is unsuccessful, decoding body thrown IOException");
                 e.printStackTrace();
             }
             return null;
