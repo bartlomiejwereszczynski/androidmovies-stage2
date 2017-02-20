@@ -2,6 +2,7 @@ package com.example.werek.themoviedb.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.example.werek.themoviedb.util.MovieDbApi;
 import com.google.gson.annotations.Expose;
@@ -12,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Movie implements Parcelable {
+    public static final String TAG = Movie.class.getSimpleName();
     public static final String FAV_UNKNOWN = "unknown";
     public static final String FAV_YES = "favourite";
     public static final String FAV_NO = "notfavourite";
@@ -82,9 +84,11 @@ public class Movie implements Parcelable {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
+            } else {
+                Log.d(TAG, "getPosterUrl: file for poster image doesn't exists, size " + poster.length());
             }
         }
-        return getPosterUrl(MovieDbApi.POSTER_WIDTH_185);
+        return getPosterUrl(MovieDbApi.POSTER_WIDTH_342);
     }
 
     public URL getBackdropUrl(String size) {
@@ -100,6 +104,8 @@ public class Movie implements Parcelable {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
+            } else {
+                Log.d(TAG, "getBackdropUrl: file for poster image doesn't exists, size " + backdrop.length());
             }
         }
         return getBackdropUrl(MovieDbApi.POSTER_WIDTH_780);
@@ -231,7 +237,9 @@ public class Movie implements Parcelable {
             return false;
         if (getVideo() != null ? !getVideo().equals(movie.getVideo()) : movie.getVideo() != null)
             return false;
-        return getVoteAverage() != null ? getVoteAverage().equals(movie.getVoteAverage()) : movie.getVoteAverage() == null;
+        if (getVoteAverage() != null ? !getVoteAverage().equals(movie.getVoteAverage()) : movie.getVoteAverage() != null)
+            return false;
+        return isFavourite != null ? isFavourite.equals(movie.isFavourite) : movie.isFavourite == null;
 
     }
 
@@ -250,6 +258,7 @@ public class Movie implements Parcelable {
         result = 31 * result + (getVoteCount() != null ? getVoteCount().hashCode() : 0);
         result = 31 * result + (getVideo() != null ? getVideo().hashCode() : 0);
         result = 31 * result + (getVoteAverage() != null ? getVoteAverage().hashCode() : 0);
+        result = 31 * result + (isFavourite != null ? isFavourite.hashCode() : 0);
         return result;
     }
 
@@ -269,6 +278,7 @@ public class Movie implements Parcelable {
                 ", voteCount=" + voteCount +
                 ", video=" + video +
                 ", voteAverage=" + voteAverage +
+                ", isFavourite='" + isFavourite + '\'' +
                 '}';
     }
 
@@ -293,6 +303,7 @@ public class Movie implements Parcelable {
         dest.writeValue(this.voteCount);
         dest.writeValue(this.video);
         dest.writeValue(this.voteAverage);
+        dest.writeString(this.isFavourite);
     }
 
     public Movie() {
@@ -312,9 +323,10 @@ public class Movie implements Parcelable {
         this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
         this.video = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
+        this.isFavourite = in.readString();
     }
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         public Movie createFromParcel(Parcel source) {
             return new Movie(source);
         }
