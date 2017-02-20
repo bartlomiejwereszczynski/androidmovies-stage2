@@ -23,6 +23,7 @@ import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
+import com.example.werek.themoviedb.task.FavouriteMovieTask;
 import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
 import com.example.werek.themoviedb.util.Preferences;
 
@@ -82,7 +83,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (sorting == null) {
             sorting = Preferences.getSorting(this);
         }
-        new AsyncMovieTask(this).execute(sorting);
+        if (sorting.equals(Preferences.FAVOURITE)) {
+            new FavouriteMovieTask(this).execute();
+        } else {
+            new AsyncMovieTask(this).execute(sorting);
+        }
     }
 
     void showError(int stringResource) {
@@ -157,6 +162,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case Preferences.TOP_RATED:
                 setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_top_rated));
                 break;
+            case Preferences.FAVOURITE:
+                setTitle(getString(R.string.app_name) + " - " + getString(R.string.sort_favourite));
+                break;
             default:
                 setTitle(R.string.app_name);
                 break;
@@ -179,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.action_sort_top_rated:
                 Preferences.setSorting(this, Preferences.TOP_RATED);
                 loadMovies(Preferences.TOP_RATED);
+                return true;
+            case R.id.action_sort_favourite:
+                Preferences.setSorting(this, Preferences.FAVOURITE);
+                loadMovies(Preferences.FAVOURITE);
                 return true;
         }
         return super.onOptionsItemSelected(item);

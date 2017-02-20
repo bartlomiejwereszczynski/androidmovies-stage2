@@ -309,9 +309,17 @@ public class MovieProvider extends ContentProvider {
         MovieDbApi movieApi = new MovieDbApi();
 
         try {
-            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_342,poster,posterFile);
-            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_780,backdrop,backdropFile);
+            if (!posterFile.exists()) {
+                posterFile.createNewFile();
+            }
+            if (!backdropFile.exists()) {
+                backdropFile.createNewFile();
+            }
+            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_342, poster, posterFile);
+            movieApi.downloadImageTo(MovieDbApi.POSTER_WIDTH_780, backdrop, backdropFile);
             Log.d(TAG, "storeImages: stored poster and backdrop images");
+            Log.d(TAG, "storeImages: poster size "+posterFile.length());
+            Log.d(TAG, "storeImages: backdrop size "+backdropFile.length());
         } catch (IOException e) {
             e.printStackTrace();
         }

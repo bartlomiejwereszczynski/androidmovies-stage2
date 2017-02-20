@@ -24,6 +24,7 @@ public class MovieDbApi {
     private static final String TAG = MovieDbApi.class.getName();
     private static final String MOVIEDB_API = "https://api.themoviedb.org";
     public static final String POSTER_BASE_URL = "https://image.tmdb.org/t/p";
+    public static final String POSTER_BASE_API = "https://image.tmdb.org";
     public static final String POSTER_WIDTH_92 = "w92";
     public static final String POSTER_WIDTH_154 = "w154";
     public static final String POSTER_WIDTH_185 = "w185";
@@ -31,11 +32,13 @@ public class MovieDbApi {
     public static final String POSTER_WIDTH_500 = "w500";
     public static final String POSTER_WIDTH_780 = "w780";
     public static final String POSTER_WIDTH_ORIGINAL = "original";
+    private final Retrofit retrofitImage;
     private Retrofit retrofit;
     private MovieDbService service;
 
     protected String language;
     private String apiKey;
+    private MovieDbImageService imageService;
 
     /**
      * constructor initializes retrofit library
@@ -43,6 +46,10 @@ public class MovieDbApi {
     public MovieDbApi() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(MOVIEDB_API)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        retrofitImage = new Retrofit.Builder()
+                .baseUrl(POSTER_BASE_API)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
@@ -57,6 +64,13 @@ public class MovieDbApi {
             service = retrofit.create(MovieDbService.class);
         }
         return service;
+    }
+
+    private MovieDbImageService movieDbImages() {
+        if (imageService == null) {
+            imageService = retrofitImage.create(MovieDbImageService.class);
+        }
+        return imageService;
     }
 
     /**
@@ -207,13 +221,15 @@ public class MovieDbApi {
     public void downloadImageTo(String size, String image, File file) throws IOException {
         image = image.startsWith("/") ? image.substring(1) : image;
         Log.d(TAG, "downloadImageTo: size(" + size + "), image(" + image + "), file(" + file + ")");
-        Response<ResponseBody> response = movieDb().downloadImage(size, image).execute();
+        Response<ResponseBody> response = movieDbImages().downloadImage(size, image).execute();
 
         if (response.isSuccessful()) {
             FileOutputStream fo = new FileOutputStream(file);
             fo.write(response.body().bytes());
             fo.close();
             Log.d(TAG, "downloadImageTo: download successful");
+        } else {
+            Log.d(TAG, "downloadImageTo: error while download image httpCode: "+response.code()+" message: "+response.message());
         }
     }
 

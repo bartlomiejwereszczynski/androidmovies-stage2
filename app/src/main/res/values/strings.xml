@@ -6,6 +6,7 @@
     <string name="error_no_results">Ups, The Movie DB returned no results :(</string>
     <string name="sort_top_rated">Top rated movies</string>
     <string name="sort_popular">Popular movies</string>
+    <string name="sort_favourite">Favourite movies</string>
     <string name="error_key">Make sure to follow instructions from README.md in project directory before building this project, no TMDB key is set so this app won\'t work</string>
     <string name="action_favourite">switch_favourite_status</string>
     <string name="text_favourite_yes">Remove from favourites</string>
