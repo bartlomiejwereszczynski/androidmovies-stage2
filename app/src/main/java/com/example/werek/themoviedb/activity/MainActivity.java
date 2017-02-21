@@ -22,7 +22,7 @@ import com.example.werek.themoviedb.BuildConfig;
 import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.adapter.MovieAdapter;
 import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
-import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
+import com.example.werek.themoviedb.fragment.MovieFragment;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @BindBool(R.bool.use_fragment)
     boolean mUseFragment;
     private EndlessRecyclerViewScrollListener mEndlessScroll;
-    private MovieDetailsFragment mDetailsFragment;
+    private MovieFragment mDetailsFragment;
     @Nullable
     private ContentObserver mFavouritesObserver;
     private Handler mHandler = new Handler();
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     void setupGrid() {
         if (mUseFragment) {
-            mDetailsFragment = (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
+            mDetailsFragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
         }
         mMovieAdapter = new MovieAdapterPaginated(this);
         GridLayoutManager layoutManager = new GridLayoutManager(this, mGridColumns);

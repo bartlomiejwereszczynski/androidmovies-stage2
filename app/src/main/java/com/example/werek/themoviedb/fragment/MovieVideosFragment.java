@@ -1,10 +1,12 @@
 package com.example.werek.themoviedb.fragment;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import com.example.werek.themoviedb.task.ApiLoaderInterface;
 import com.example.werek.themoviedb.task.AsyncVideosTask;
 
 public class MovieVideosFragment extends Fragment implements ApiLoaderInterface<VideosList>, MovieLoaderInterface {
+    public static final String TAG = MovieVideosFragment.class.getSimpleName();
     public static final String VIDEOS_LIST = BuildConfig.APPLICATION_ID + "videosList";
     FragmentMovieVideosBinding mBinding;
     VideosAdapter mAdapter;
@@ -35,7 +38,20 @@ public class MovieVideosFragment extends Fragment implements ApiLoaderInterface<
             mAdapter.setVideoList(mList);
         }
         mBinding.rvList.setAdapter(mAdapter);
+        Log.i(TAG, "onCreateView: ");
         return mBinding.getRoot();
+    }
+
+    /**
+     * Called when a fragment is first attached to its context.
+     * {@link #onCreate(Bundle)} will be called after this.
+     *
+     * @param context
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.i(TAG, "onAttach: attached videos fragment to " + context.getClass().getName());
     }
 
     private void recoverList(@Nullable Bundle savedInstanceState) {
@@ -67,6 +83,7 @@ public class MovieVideosFragment extends Fragment implements ApiLoaderInterface<
 
     @Override
     public void onResponse(@Nullable VideosList response) {
+        Log.d(TAG, "onResponse: got response " + response);
         mList = response;
         if (mAdapter != null) {
             mAdapter.setVideoList(response);
@@ -80,6 +97,7 @@ public class MovieVideosFragment extends Fragment implements ApiLoaderInterface<
      */
     @Override
     public void onLoadMovie(Movie movie) {
+        Log.i(TAG, "onLoadMovie: loading videos for movie " + movie);
         new AsyncVideosTask(this).execute(movie.getId());
     }
 }

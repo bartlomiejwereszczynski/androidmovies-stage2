@@ -199,7 +199,7 @@ public class MovieDbApi {
     public VideosList movieVideos(int movieId) {
         Response<VideosList> response = null;
         try {
-            response = movieDb().movieVideos(apiKey, language, movieId).execute();
+            response = movieDb().movieVideos(movieId, apiKey, language).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -223,7 +223,7 @@ public class MovieDbApi {
     public ReviewList movieReviews(int movieId) {
         Response<ReviewList> response = null;
         try {
-            response = movieDb().movieReviews(apiKey, language, movieId).execute();
+            response = movieDb().movieReviews(movieId, apiKey, language).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }

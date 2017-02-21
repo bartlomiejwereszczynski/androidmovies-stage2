@@ -23,14 +23,14 @@
         </android.support.v7.widget.RecyclerView>
 
         <fragment
-            android:name="com.example.werek.themoviedb.fragment.MovieDetailsFragment"
+            android:name="com.example.werek.themoviedb.fragment.MovieFragment"
             android:id="@+id/movie_details_fragment"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             tools:context="com.example.werek.themoviedb.activity.DetailsActivity"
             tools:ignore="MergeRootFrame"
-            tools:layout="@layout/fragment_movie_details" />
+            tools:layout="@layout/fragment_movie" />
     </LinearLayout>
 
     <TextView

@@ -209,7 +209,7 @@ public class Movie implements Parcelable {
 
     @Override
     public String toString() {
-        return "MovieDetailsFragment{" +
+        return "Movie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", posterPath='" + posterPath + '\'' +

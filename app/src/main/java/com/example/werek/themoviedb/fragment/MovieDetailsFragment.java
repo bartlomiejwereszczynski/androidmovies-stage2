@@ -1,5 +1,6 @@
 package com.example.werek.themoviedb.fragment;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -23,7 +24,7 @@ import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.viewmodel.MovieDetailsViewModel;
 
-public class MovieDetailsFragment extends Fragment implements MovieLoaderInterface{
+public class MovieDetailsFragment extends Fragment implements MovieLoaderInterface {
     public static final String TAG = MovieDetailsFragment.class.getSimpleName();
     FragmentMovieDetailsBinding mBinding;
     private Movie mMovie;
@@ -46,14 +47,30 @@ public class MovieDetailsFragment extends Fragment implements MovieLoaderInterfa
         if (mMovie != null) {
             onLoadMovie(mMovie);
         }
+        Log.i(TAG, "onCreateView: ");
         return mBinding.getRoot();
     }
 
+    /**
+     * Called when a fragment is first attached to its context.
+     * {@link #onCreate(Bundle)} will be called after this.
+     *
+     * @param context
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach: attached details fragment to "+context.getClass().getName());
+    }
+
     public void onLoadMovie(Movie movie) {
+        Log.i(TAG, "onLoadMovie: loading movie " + movie);
         mMovie = movie;
-        mBinding.setMovie(new MovieDetailsViewModel(mMovie));
-        switchFavouriteState(mMovie.isFavourite);
-        mBinding.getRoot().requestLayout();
+        if (mBinding != null) {
+            mBinding.setMovie(new MovieDetailsViewModel(mMovie));
+            switchFavouriteState(mMovie.isFavourite);
+            mBinding.getRoot().requestLayout();
+        }
     }
 
     private void switchFavouriteState(String favState) {

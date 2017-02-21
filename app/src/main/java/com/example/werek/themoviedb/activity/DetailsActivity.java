@@ -9,12 +9,13 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.werek.themoviedb.R;
-import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
+import com.example.werek.themoviedb.fragment.MovieFragment;
+import com.example.werek.themoviedb.model.Movie;
 
 public class DetailsActivity extends AppCompatActivity {
     private static final String TAG = DetailsActivity.class.getName();
-    protected com.example.werek.themoviedb.model.Movie mMovie;
-    private MovieDetailsFragment mDetailsFragment;
+    protected Movie mMovie;
+    private MovieFragment mDetailsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,7 @@ public class DetailsActivity extends AppCompatActivity {
             mMovie = intent.getParcelableExtra(MainActivity.MOVIE_EXTRA);
         }
 
-        mDetailsFragment = (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
+        mDetailsFragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
 
         if (mMovie == null) {
             throw new NullPointerException("Need to have movie object in intent");

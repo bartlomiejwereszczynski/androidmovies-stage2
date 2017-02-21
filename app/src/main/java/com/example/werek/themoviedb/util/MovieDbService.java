@@ -25,8 +25,8 @@ public interface MovieDbService {
     Call<ResponseBody> downloadImage(@Path("size") String size, @Path("image") String image);
 
     @GET("/movie/{movie_id}/videos")
-    Call<VideosList> movieVideos(@Query("api_key") String apiKey, @Query("language") String language, @Path("movie_id") int movieId);
+    Call<VideosList> movieVideos(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("language") String language);
 
     @GET("/movie/{movie_id}/reviews")
-    Call<ReviewList> movieReviews(@Query("api_key") String apiKey, @Query("language") String language, @Path("movie_id") int movieId);
+    Call<ReviewList> movieReviews(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("language") String language);
 }
