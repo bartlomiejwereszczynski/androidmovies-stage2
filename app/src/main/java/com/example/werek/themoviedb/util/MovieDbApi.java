@@ -94,16 +94,16 @@ public class MovieDbApi {
     }
 
     /**
-     * @return The Movie Database access key
+     * @return The MovieDetailsFragment Database access key
      */
     public String getApiKey() {
         return apiKey;
     }
 
     /**
-     * The Movie Database access key
+     * The MovieDetailsFragment Database access key
      *
-     * @param apiKey
+     * @param apiKey api key to use with TMDB
      */
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
@@ -284,7 +284,7 @@ public class MovieDbApi {
     }
 
     /**
-     * transforms Movie object to ContentValues to use in ContentProvider insert/update methods
+     * transforms MovieDetailsFragment object to ContentValues to use in ContentProvider insert/update methods
      *
      * @param movie movie object which needs to be transformed for insert/update operation
      * @return movie values in form of ContentValues
@@ -308,10 +308,10 @@ public class MovieDbApi {
     }
 
     /**
-     * reads current cursor row and creates Movie object from it
+     * reads current cursor row and creates MovieDetailsFragment object from it
      *
-     * @param cursor cursor with Movie data
-     * @return Movie object with data populated from cursor
+     * @param cursor cursor with MovieDetailsFragment data
+     * @return MovieDetailsFragment object with data populated from cursor
      */
     public static Movie fromSingleCursor(Cursor cursor) {
         Movie movie = new Movie();

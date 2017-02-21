@@ -23,7 +23,7 @@ import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.viewmodel.MovieDetailsViewModel;
 
-public class MovieDetailsFragment extends Fragment {
+public class MovieDetailsFragment extends Fragment implements MovieLoaderInterface{
     public static final String TAG = MovieDetailsFragment.class.getSimpleName();
     FragmentMovieDetailsBinding mBinding;
     private Movie mMovie;
@@ -44,12 +44,12 @@ public class MovieDetailsFragment extends Fragment {
         }
 
         if (mMovie != null) {
-            loadMovie(mMovie);
+            onLoadMovie(mMovie);
         }
         return mBinding.getRoot();
     }
 
-    public void loadMovie(Movie movie) {
+    public void onLoadMovie(Movie movie) {
         mMovie = movie;
         mBinding.setMovie(new MovieDetailsViewModel(mMovie));
         switchFavouriteState(mMovie.isFavourite);

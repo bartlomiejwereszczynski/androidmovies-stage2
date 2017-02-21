@@ -10,11 +10,10 @@ import android.view.MenuItem;
 
 import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
-import com.example.werek.themoviedb.model.Movie;
 
 public class DetailsActivity extends AppCompatActivity {
     private static final String TAG = DetailsActivity.class.getName();
-    protected Movie mMovie;
+    protected com.example.werek.themoviedb.model.Movie mMovie;
     private MovieDetailsFragment mDetailsFragment;
 
     @Override
@@ -38,8 +37,8 @@ public class DetailsActivity extends AppCompatActivity {
         if (mMovie == null) {
             throw new NullPointerException("Need to have movie object in intent");
         }
-        Log.d(TAG, "Movie details: " + mMovie.toString());
-        mDetailsFragment.loadMovie(mMovie);
+        Log.d(TAG, "MovieDetailsFragment details: " + mMovie.toString());
+        mDetailsFragment.onLoadMovie(mMovie);
     }
 
     @Override

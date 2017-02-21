@@ -23,7 +23,6 @@ import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.adapter.MovieAdapter;
 import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
 import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
-import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
@@ -205,9 +204,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onMovieDetails(Movie movie) {
+    public void onMovieDetails(com.example.werek.themoviedb.model.Movie movie) {
         if (mUseFragment) {
-            mDetailsFragment.loadMovie(movie);
+            mDetailsFragment.onLoadMovie(movie);
         } else {
             Intent intent = new Intent(this, DetailsActivity.class);
             intent.putExtra(MOVIE_EXTRA, movie);
@@ -272,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             setListTitle(moviesList.getType());
             if (mUseFragment) {
                 // load first movie at start
-                mDetailsFragment.loadMovie(moviesList.getResults().get(0));
+                mDetailsFragment.onLoadMovie(moviesList.getResults().get(0));
             }
             showResults();
         } else {
