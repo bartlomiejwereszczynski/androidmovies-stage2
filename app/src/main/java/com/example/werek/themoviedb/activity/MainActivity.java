@@ -1,7 +1,10 @@
 package com.example.werek.themoviedb.activity;
 
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -22,6 +25,7 @@ import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
 import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
 import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
+import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
 import com.example.werek.themoviedb.task.FavouriteMovieTask;
 import com.example.werek.themoviedb.util.EndlessRecyclerViewScrollListener;
@@ -52,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     boolean mUseFragment;
     private EndlessRecyclerViewScrollListener mEndlessScroll;
     private MovieDetailsFragment mDetailsFragment;
+    @Nullable
+    private ContentObserver mFavouritesObserver;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +77,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mMovieAdapter.setMovieList(list);
             setListTitle(list.getType());
             showResults();
+            Log.d(TAG, "restoreState: loading movies from saved instance state");
         } else {
+            Log.d(TAG, "restoreState: loading movies from scratch");
             loadMovies(null);
         }
     }
@@ -85,8 +94,60 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
         if (sorting.equals(Preferences.FAVOURITE)) {
             new FavouriteMovieTask(this).execute();
+            registerFavouriteWatcher();
         } else {
+            if (mFavouritesObserver != null) {
+                Log.d(TAG, "loadMovies: unregistering and nulling favourite observer");
+                getContentResolver().unregisterContentObserver(mFavouritesObserver);
+                mFavouritesObserver = null;
+            }
             new AsyncMovieTask(this).execute(sorting);
+        }
+    }
+
+    private void registerFavouriteWatcher(){
+        if (mFavouritesObserver != null) {
+            Log.d(TAG, "registerFavouriteWatcher: skipping build/registration content observer already present");
+            //no need for second observer registration
+            return;
+        } else {
+            Log.d(TAG, "registerFavouriteWatcher: building content observer");
+            mFavouritesObserver = new ContentObserver(mHandler) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    super.onChange(selfChange);
+                }
+
+                @Override
+                public void onChange(boolean selfChange, @Nullable Uri uri) {
+                    Log.d(TAG, "onChange: received URI change");
+                    new FavouriteMovieTask(MainActivity.this).execute();
+                }
+            };
+        }
+        Log.d(TAG, "registerFavouriteWatcher: registering content observer");
+        getContentResolver().registerContentObserver(
+                MovieContract.FavouriteEntry.CONTENT_URI,
+                true,
+                mFavouritesObserver
+        );
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Preferences.getSorting(this).equals(Preferences.FAVOURITE)) {
+            new FavouriteMovieTask(this).execute();
+            registerFavouriteWatcher();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mFavouritesObserver != null) {
+            Log.d(TAG, "onPause: unregistering favourite listener");
+            getContentResolver().unregisterContentObserver(mFavouritesObserver);
         }
     }
 
