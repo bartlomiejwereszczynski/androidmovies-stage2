@@ -11,4 +11,7 @@
     <string name="action_favourite">switch_favourite_status</string>
     <string name="text_favourite_yes">Remove from favourites</string>
     <string name="text_favourite_no">Add to favourites</string>
+    <string name="tab_details">Details</string>
+    <string name="tab_reviews">Reviews</string>
+    <string name="tab_videos">Videos</string>
 </resources>

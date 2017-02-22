@@ -208,61 +208,6 @@ public class Movie implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Movie)) return false;
-
-        Movie movie = (Movie) o;
-
-        if (getId() != null ? !getId().equals(movie.getId()) : movie.getId() != null) return false;
-        if (getTitle() != null ? !getTitle().equals(movie.getTitle()) : movie.getTitle() != null)
-            return false;
-        if (getPosterPath() != null ? !getPosterPath().equals(movie.getPosterPath()) : movie.getPosterPath() != null)
-            return false;
-        if (getAdult() != null ? !getAdult().equals(movie.getAdult()) : movie.getAdult() != null)
-            return false;
-        if (getOverview() != null ? !getOverview().equals(movie.getOverview()) : movie.getOverview() != null)
-            return false;
-        if (getReleaseDate() != null ? !getReleaseDate().equals(movie.getReleaseDate()) : movie.getReleaseDate() != null)
-            return false;
-        if (getOriginalTitle() != null ? !getOriginalTitle().equals(movie.getOriginalTitle()) : movie.getOriginalTitle() != null)
-            return false;
-        if (getOriginalLanguage() != null ? !getOriginalLanguage().equals(movie.getOriginalLanguage()) : movie.getOriginalLanguage() != null)
-            return false;
-        if (getBackdropPath() != null ? !getBackdropPath().equals(movie.getBackdropPath()) : movie.getBackdropPath() != null)
-            return false;
-        if (getPopularity() != null ? !getPopularity().equals(movie.getPopularity()) : movie.getPopularity() != null)
-            return false;
-        if (getVoteCount() != null ? !getVoteCount().equals(movie.getVoteCount()) : movie.getVoteCount() != null)
-            return false;
-        if (getVideo() != null ? !getVideo().equals(movie.getVideo()) : movie.getVideo() != null)
-            return false;
-        if (getVoteAverage() != null ? !getVoteAverage().equals(movie.getVoteAverage()) : movie.getVoteAverage() != null)
-            return false;
-        return isFavourite != null ? isFavourite.equals(movie.isFavourite) : movie.isFavourite == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
-        result = 31 * result + (getPosterPath() != null ? getPosterPath().hashCode() : 0);
-        result = 31 * result + (getAdult() != null ? getAdult().hashCode() : 0);
-        result = 31 * result + (getOverview() != null ? getOverview().hashCode() : 0);
-        result = 31 * result + (getReleaseDate() != null ? getReleaseDate().hashCode() : 0);
-        result = 31 * result + (getOriginalTitle() != null ? getOriginalTitle().hashCode() : 0);
-        result = 31 * result + (getOriginalLanguage() != null ? getOriginalLanguage().hashCode() : 0);
-        result = 31 * result + (getBackdropPath() != null ? getBackdropPath().hashCode() : 0);
-        result = 31 * result + (getPopularity() != null ? getPopularity().hashCode() : 0);
-        result = 31 * result + (getVoteCount() != null ? getVoteCount().hashCode() : 0);
-        result = 31 * result + (getVideo() != null ? getVideo().hashCode() : 0);
-        result = 31 * result + (getVoteAverage() != null ? getVoteAverage().hashCode() : 0);
-        result = 31 * result + (isFavourite != null ? isFavourite.hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "Movie{" +
                 "id=" + id +

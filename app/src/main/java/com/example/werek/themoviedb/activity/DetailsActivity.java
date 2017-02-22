@@ -9,13 +9,13 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.werek.themoviedb.R;
-import com.example.werek.themoviedb.fragment.MovieDetailsFragment;
+import com.example.werek.themoviedb.fragment.MovieFragment;
 import com.example.werek.themoviedb.model.Movie;
 
 public class DetailsActivity extends AppCompatActivity {
     private static final String TAG = DetailsActivity.class.getName();
     protected Movie mMovie;
-    private MovieDetailsFragment mDetailsFragment;
+    private MovieFragment mDetailsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +31,18 @@ public class DetailsActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra(MainActivity.MOVIE_EXTRA)) {
             Log.d(TAG, "got movie in incoming intent");
             mMovie = intent.getParcelableExtra(MainActivity.MOVIE_EXTRA);
-        }
-
-        mDetailsFragment = (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
-
-        if (mMovie == null) {
+            Log.d(TAG, "Movie details: " + mMovie.toString());
+            MovieFragment movieFragment = new MovieFragment();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(MainActivity.MOVIE_EXTRA,mMovie);
+            movieFragment.setArguments(arguments);
+            Log.d(TAG, "onCreate: replacing fragment");
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_placeholder, movieFragment)
+                    .commit();
+        } else {
             throw new NullPointerException("Need to have movie object in intent");
         }
-        Log.d(TAG, "Movie details: " + mMovie.toString());
-        mDetailsFragment.loadMovie(mMovie);
     }
 
     @Override

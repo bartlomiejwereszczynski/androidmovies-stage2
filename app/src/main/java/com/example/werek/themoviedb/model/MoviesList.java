@@ -67,35 +67,6 @@ public class MoviesList implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MoviesList)) return false;
-
-        MoviesList that = (MoviesList) o;
-
-        if (getPage() != null ? !getPage().equals(that.getPage()) : that.getPage() != null)
-            return false;
-        if (getResults() != null ? !getResults().equals(that.getResults()) : that.getResults() != null)
-            return false;
-        if (getTotalResults() != null ? !getTotalResults().equals(that.getTotalResults()) : that.getTotalResults() != null)
-            return false;
-        if (getTotalPages() != null ? !getTotalPages().equals(that.getTotalPages()) : that.getTotalPages() != null)
-            return false;
-        return getType() != null ? getType().equals(that.getType()) : that.getType() == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getPage() != null ? getPage().hashCode() : 0;
-        result = 31 * result + (getResults() != null ? getResults().hashCode() : 0);
-        result = 31 * result + (getTotalResults() != null ? getTotalResults().hashCode() : 0);
-        result = 31 * result + (getTotalPages() != null ? getTotalPages().hashCode() : 0);
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "MoviesList{" +
                 "page=" + page +
