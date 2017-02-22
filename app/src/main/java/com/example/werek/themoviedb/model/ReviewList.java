@@ -73,4 +73,30 @@ public class ReviewList implements Parcelable {
             return new ReviewList[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ReviewList)) return false;
+
+        ReviewList that = (ReviewList) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (page != null ? !page.equals(that.page) : that.page != null) return false;
+        if (results != null ? !results.equals(that.results) : that.results != null) return false;
+        if (totalPages != null ? !totalPages.equals(that.totalPages) : that.totalPages != null)
+            return false;
+        return totalResults != null ? totalResults.equals(that.totalResults) : that.totalResults == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (page != null ? page.hashCode() : 0);
+        result = 31 * result + (results != null ? results.hashCode() : 0);
+        result = 31 * result + (totalPages != null ? totalPages.hashCode() : 0);
+        result = 31 * result + (totalResults != null ? totalResults.hashCode() : 0);
+        return result;
+    }
 }

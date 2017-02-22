@@ -1,6 +1,5 @@
 package com.example.werek.themoviedb.fragment;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.werek.themoviedb.BuildConfig;
 import com.example.werek.themoviedb.R;
+import com.example.werek.themoviedb.activity.MainActivity;
 import com.example.werek.themoviedb.adapter.ReviewsAdapter;
 import com.example.werek.themoviedb.databinding.FragmentMovieReviewsBinding;
 import com.example.werek.themoviedb.model.Movie;
@@ -26,6 +26,8 @@ public class MovieReviewsFragment extends Fragment implements ApiLoaderInterface
     FragmentMovieReviewsBinding mBinding;
     ReviewsAdapter mAdapter;
     ReviewList mList;
+    Movie mMovie;
+    private boolean isLoading=false;
 
     @Nullable
     @Override
@@ -38,20 +40,7 @@ public class MovieReviewsFragment extends Fragment implements ApiLoaderInterface
             mAdapter.setReviewList(mList);
         }
         mBinding.rvList.setAdapter(mAdapter);
-        Log.i(TAG, "onCreateView: ");
         return mBinding.getRoot();
-    }
-
-    /**
-     * Called when a fragment is first attached to its context.
-     * {@link #onCreate(Bundle)} will be called after this.
-     *
-     * @param context
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.i(TAG, "onAttach: attached reviews fragment to " + context.getClass().getName());
     }
 
     private void recoverList(@Nullable Bundle savedInstanceState) {
@@ -59,9 +48,11 @@ public class MovieReviewsFragment extends Fragment implements ApiLoaderInterface
             // list was set before view was created
             return;
         }
-        if (getArguments() != null && getArguments().containsKey(REVIEWS_LIST)) {
-            mList = getArguments().getParcelable(REVIEWS_LIST);
+        if (getArguments() != null && getArguments().containsKey(MainActivity.MOVIE_EXTRA)) {
+            mMovie = getArguments().getParcelable(MainActivity.MOVIE_EXTRA);
+            onLoadMovie(mMovie);
         } else if (savedInstanceState != null && savedInstanceState.containsKey(REVIEWS_LIST)) {
+            Log.d(TAG, "recoverList: recovered list from saved instance bundle");
             mList = savedInstanceState.getParcelable(REVIEWS_LIST);
         }
     }
@@ -75,15 +66,38 @@ public class MovieReviewsFragment extends Fragment implements ApiLoaderInterface
 
     @Override
     public void onPreExecute() {
-
+        isLoading = true;
+        showLoading();
     }
 
     @Override
     public void onResponse(@Nullable ReviewList response) {
         Log.d(TAG, "onResponse: got response " + response);
         mList = response;
+        isLoading = false;
+        attemptToLoadList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume: attempting to load list");
+        attemptToLoadList();
+    }
+
+    private void attemptToLoadList() {
+        if (isLoading) {
+            return;
+        }
         if (mAdapter != null) {
-            mAdapter.setReviewList(response);
+            if (mList != null && !mList.equals(mAdapter.getReviewList())) {
+                Log.d(TAG, "attemptToLoadList: loading list " + mList);
+                mAdapter.setReviewList(mList);
+                showResults();
+            }
+        }
+        if (mList == null || (mList != null && mList.results.size() < 1)) {
+            showError(R.string.error_no_results);
         }
     }
 
@@ -96,5 +110,24 @@ public class MovieReviewsFragment extends Fragment implements ApiLoaderInterface
     public void onLoadMovie(Movie movie) {
         Log.i(TAG, "onLoadMovie: loading reviews for movie " + movie);
         new AsyncReviewsTask(this).execute(movie.getId());
+    }
+
+    void showError(int stringResource) {
+        mBinding.rvList.setVisibility(View.INVISIBLE);
+        mBinding.pbLoading.setVisibility(View.INVISIBLE);
+        mBinding.tvError.setText(stringResource);
+        mBinding.tvError.setVisibility(View.VISIBLE);
+    }
+
+    void showLoading() {
+        mBinding.rvList.setVisibility(View.INVISIBLE);
+        mBinding.pbLoading.setVisibility(View.VISIBLE);
+        mBinding.tvError.setVisibility(View.INVISIBLE);
+    }
+
+    void showResults() {
+        mBinding.rvList.setVisibility(View.VISIBLE);
+        mBinding.pbLoading.setVisibility(View.INVISIBLE);
+        mBinding.tvError.setVisibility(View.INVISIBLE);
     }
 }

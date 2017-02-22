@@ -1,5 +1,6 @@
 package com.example.werek.themoviedb.fragment;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -19,6 +20,7 @@ public class MovieFragmentPageStateAdapter extends FragmentStatePagerAdapter imp
     public static final int REVIEWS = 1;
     public static final int VIDEOS = 2;
     private Movie mMovie;
+    Bundle mArguments;
 
     ArrayMap<Integer, Fragment> mFragmentMap = new ArrayMap<>();
 
@@ -33,8 +35,11 @@ public class MovieFragmentPageStateAdapter extends FragmentStatePagerAdapter imp
      */
     @Override
     public Fragment getItem(int position) {
-        Log.i(TAG, "getItem: requested item at position " + position);
         Fragment fragment;
+        if (mFragmentMap.containsKey(position)) {
+            Log.d(TAG, "getItem: returning fragment stored at position " + position + ": " + mFragmentMap.get(position).getClass().getName());
+            return mFragmentMap.get(position);
+        }
         switch (position) {
             case DETAILS:
                 fragment = new MovieDetailsFragment();
@@ -48,12 +53,17 @@ public class MovieFragmentPageStateAdapter extends FragmentStatePagerAdapter imp
             default:
                 return null;
         }
-        if (mMovie != null) {
-            Log.i(TAG, "getItem: passing movie to " + fragment.getClass().getName());
-            ((MovieLoaderInterface) fragment).onLoadMovie(mMovie);
+        Log.d(TAG, "getItem: created fragment " + fragment.getClass().getName());
+        if (mArguments != null) {
+            Log.i(TAG, "getItem: passing arguments to " + fragment.getClass().getName());
+            fragment.setArguments(mArguments);
         }
         mFragmentMap.put(position, fragment);
         return fragment;
+    }
+
+    public void setArguments(Bundle mArguments) {
+        this.mArguments = mArguments;
     }
 
     /**
@@ -68,7 +78,6 @@ public class MovieFragmentPageStateAdapter extends FragmentStatePagerAdapter imp
     public void destroyItem(ViewGroup container, int position, Object object) {
         super.destroyItem(container, position, object);
         mFragmentMap.remove(position);
-        Log.i(TAG, "destroyItem: destroying item at position " + position);
     }
 
     public Fragment getFragment(int position) {

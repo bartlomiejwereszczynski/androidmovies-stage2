@@ -1,6 +1,5 @@
 package com.example.werek.themoviedb.fragment;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -10,9 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,39 +24,28 @@ public class MovieDetailsFragment extends Fragment implements MovieLoaderInterfa
     public static final String TAG = MovieDetailsFragment.class.getSimpleName();
     FragmentMovieDetailsBinding mBinding;
     private Movie mMovie;
-    private MenuItem mFavouriteMenu;
-
-    public MovieDetailsFragment() {
-        setHasOptionsMenu(true);
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details, container, false);
         if (getArguments() != null && getArguments().containsKey(MainActivity.MOVIE_EXTRA)) {
+            Log.d(TAG, "onCreateView: loading movie from arguments");
             mMovie = getArguments().getParcelable(MainActivity.MOVIE_EXTRA);
         } else if (savedInstanceState != null && savedInstanceState.containsKey(MainActivity.MOVIE_EXTRA)) {
+            Log.d(TAG, "onCreateView: loading movie from saved state");
             mMovie = savedInstanceState.getParcelable(MainActivity.MOVIE_EXTRA);
         }
-
-        if (mMovie != null) {
-            onLoadMovie(mMovie);
-        }
-        Log.i(TAG, "onCreateView: ");
+        setupFavouriteListener();
         return mBinding.getRoot();
     }
 
-    /**
-     * Called when a fragment is first attached to its context.
-     * {@link #onCreate(Bundle)} will be called after this.
-     *
-     * @param context
-     */
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.d(TAG, "onAttach: attached details fragment to "+context.getClass().getName());
+    public void onResume() {
+        super.onResume();
+        if (mMovie != null) {
+            onLoadMovie(mMovie);
+        }
     }
 
     public void onLoadMovie(Movie movie) {
@@ -74,14 +59,9 @@ public class MovieDetailsFragment extends Fragment implements MovieLoaderInterfa
     }
 
     private void switchFavouriteState(String favState) {
-        if (mFavouriteMenu == null) {
-            Log.d(TAG, "switchFavouriteState: menu option is empty");
-            return;
-        }
         switch (favState) {
             case Movie.FAV_YES:
-                mFavouriteMenu.setIcon(android.R.drawable.star_big_on);
-                mFavouriteMenu.setTitle(R.string.text_favourite_yes);
+                mBinding.ivFavourite.setImageDrawable(getResources().getDrawable(android.R.drawable.star_big_on));
                 break;
             case Movie.FAV_UNKNOWN:
                 new AsyncTask<Movie, Void, String>() {
@@ -106,28 +86,15 @@ public class MovieDetailsFragment extends Fragment implements MovieLoaderInterfa
                 }.execute(mMovie);
             case Movie.FAV_NO:
             default:
-                mFavouriteMenu.setIcon(android.R.drawable.star_big_off);
-                mFavouriteMenu.setTitle(R.string.text_favourite_no);
+                mBinding.ivFavourite.setImageDrawable(getResources().getDrawable(android.R.drawable.star_big_off));
                 break;
         }
     }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.details, menu);
-        mFavouriteMenu = menu.findItem(R.id.action_favourite);
-        // as soon as menu is created check what to set
-        if (mMovie != null) {
-            switchFavouriteState(mMovie.isFavourite);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_favourite:
+    public void setupFavouriteListener() {
+        mBinding.ivFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 FavouriteManager fm = new FavouriteManager(getContext());
                 if (mMovie.isFavourite.equals(Movie.FAV_YES)) {
                     mMovie.isFavourite = Movie.FAV_NO;
@@ -137,9 +104,8 @@ public class MovieDetailsFragment extends Fragment implements MovieLoaderInterfa
                     fm.storeFavourite(mMovie);
                 }
                 switchFavouriteState(mMovie.isFavourite);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+            }
+        });
     }
 
     @Override

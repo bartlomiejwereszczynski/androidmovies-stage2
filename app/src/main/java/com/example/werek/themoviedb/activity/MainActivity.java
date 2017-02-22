@@ -23,6 +23,7 @@ import com.example.werek.themoviedb.R;
 import com.example.werek.themoviedb.adapter.MovieAdapter;
 import com.example.werek.themoviedb.adapter.MovieAdapterPaginated;
 import com.example.werek.themoviedb.fragment.MovieFragment;
+import com.example.werek.themoviedb.model.Movie;
 import com.example.werek.themoviedb.model.MoviesList;
 import com.example.werek.themoviedb.model.contentprovider.MovieContract;
 import com.example.werek.themoviedb.task.AsyncMovieTask;
@@ -58,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Nullable
     private ContentObserver mFavouritesObserver;
     private Handler mHandler = new Handler();
+    boolean mFragmentAdded = false;
+    private Movie mMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (savedInstanceState != null && savedInstanceState.containsKey(MOVIES_LIST)) {
             MoviesList list = savedInstanceState.getParcelable(MOVIES_LIST);
             mMovieAdapter.setMovieList(list);
+            if (mUseFragment && savedInstanceState.containsKey(MOVIE_EXTRA)){
+                mMovie = savedInstanceState.getParcelable(MOVIE_EXTRA);
+                loadToFragment(mMovie);
+            }
             setListTitle(list.getType());
             showResults();
             Log.d(TAG, "restoreState: loading movies from saved instance state");
@@ -104,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
     }
 
-    private void registerFavouriteWatcher(){
+    private void registerFavouriteWatcher() {
         if (mFavouritesObserver != null) {
             Log.d(TAG, "registerFavouriteWatcher: skipping build/registration content observer already present");
             //no need for second observer registration
@@ -185,12 +192,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(MOVIES_LIST, mMovieAdapter.getMovieList());
+        if (mMovie != null) {
+            outState.putParcelable(MOVIE_EXTRA, mMovie);
+        }
     }
 
     void setupGrid() {
-        if (mUseFragment) {
-            mDetailsFragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_fragment);
-        }
         mMovieAdapter = new MovieAdapterPaginated(this);
         GridLayoutManager layoutManager = new GridLayoutManager(this, mGridColumns);
         if (mMovieAdapter instanceof EndlessRecyclerViewScrollListener.LoadMore) {
@@ -204,13 +211,32 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onMovieDetails(com.example.werek.themoviedb.model.Movie movie) {
+    public void onMovieDetails(Movie movie) {
         if (mUseFragment) {
-            mDetailsFragment.onLoadMovie(movie);
+            loadToFragment(movie);
         } else {
             Intent intent = new Intent(this, DetailsActivity.class);
             intent.putExtra(MOVIE_EXTRA, movie);
             startActivity(intent);
+        }
+    }
+
+    private void loadToFragment(Movie movie) {
+        mMovie = movie;
+        MovieFragment movieFragment = new MovieFragment();
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(MainActivity.MOVIE_EXTRA, movie);
+        movieFragment.setArguments(arguments);
+        Log.d(TAG, "onCreate: replacing fragment");
+        if (mFragmentAdded) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_placeholder, movieFragment)
+                    .commit();
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_placeholder, movieFragment)
+                    .commit();
+            mFragmentAdded = true;
         }
     }
 
@@ -271,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             setListTitle(moviesList.getType());
             if (mUseFragment) {
                 // load first movie at start
-                mDetailsFragment.onLoadMovie(moviesList.getResults().get(0));
+                loadToFragment(moviesList.getResults().get(0));
             }
             showResults();
         } else {

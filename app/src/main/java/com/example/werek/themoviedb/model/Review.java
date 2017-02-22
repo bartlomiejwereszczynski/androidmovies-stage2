@@ -65,4 +65,28 @@ public class Review implements Parcelable {
             return new Review[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Review)) return false;
+
+        Review review = (Review) o;
+
+        if (id != null ? !id.equals(review.id) : review.id != null) return false;
+        if (author != null ? !author.equals(review.author) : review.author != null) return false;
+        if (content != null ? !content.equals(review.content) : review.content != null)
+            return false;
+        return url != null ? url.equals(review.url) : review.url == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (author != null ? author.hashCode() : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        return result;
+    }
 }

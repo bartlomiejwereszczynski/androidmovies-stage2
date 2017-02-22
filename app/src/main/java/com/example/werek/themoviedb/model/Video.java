@@ -105,4 +105,36 @@ public class Video implements Parcelable {
             return new Video[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Video)) return false;
+
+        Video video = (Video) o;
+
+        if (id != null ? !id.equals(video.id) : video.id != null) return false;
+        if (iso6391 != null ? !iso6391.equals(video.iso6391) : video.iso6391 != null) return false;
+        if (iso31661 != null ? !iso31661.equals(video.iso31661) : video.iso31661 != null)
+            return false;
+        if (key != null ? !key.equals(video.key) : video.key != null) return false;
+        if (name != null ? !name.equals(video.name) : video.name != null) return false;
+        if (site != null ? !site.equals(video.site) : video.site != null) return false;
+        if (size != null ? !size.equals(video.size) : video.size != null) return false;
+        return type != null ? type.equals(video.type) : video.type == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (iso6391 != null ? iso6391.hashCode() : 0);
+        result = 31 * result + (iso31661 != null ? iso31661.hashCode() : 0);
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (site != null ? site.hashCode() : 0);
+        result = 31 * result + (size != null ? size.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
 }

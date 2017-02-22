@@ -55,4 +55,23 @@ public class VideosList implements Parcelable {
             return new VideosList[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VideosList)) return false;
+
+        VideosList that = (VideosList) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return results != null ? results.equals(that.results) : that.results == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (results != null ? results.hashCode() : 0);
+        return result;
+    }
 }
