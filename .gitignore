@@ -41,3 +41,4 @@ captures/
 
 # app specific
 app/key.properties
+.DS_Store
